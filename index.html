@@ -924,13 +924,13 @@ function triggerIceAge(){
   const colorName=frozenColor==='w'?'White':'Black';
   const duration=12000+Math.random()*10000;
   frozenUntil=Date.now()+duration;
-  const msg=`Due to accelerated global warming, a little ice age has arrived. ${colorName}'s pieces are frozen solid and cannot move.`;
+  const msg=`Due to accelerated global warming, an Ice Age has arrived. ${colorName}'s pieces are frozen solid and cannot move.`;
   log(msg,'hell');setStatus(msg);flashBoard('rgba(150,220,255,0.4)');
-  showBanner('Little ice age!',`${colorName} cannot move their pieces`);
+  showBanner('Ice Age!',`${colorName} cannot move their pieces`);
   renderBoard();
   setTimeout(()=>{
     frozenColor=null;
-    const thawMsg='🌊 The ice age has ended. Pieces thaw.';
+    const thawMsg='🌊 The Ice Age has ended. Pieces thaw.';
     log(thawMsg,'sys');setStatus(thawMsg);renderBoard();
   },duration);
 }
