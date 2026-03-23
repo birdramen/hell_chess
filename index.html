@@ -599,8 +599,8 @@ function renderSide() {
   document.getElementById('capturedStrip').textContent=capturedPieces.length?capturedPieces.map(p=>GLYPH[p.color+p.type]).join(' '):'—';
   const fx=[];
   if(onStrikePieces.size) fx.push('🪧 Strike ('+onStrikePieces.size+' piece'+(onStrikePieces.size>1?'s':'')+')');
-  if(colorFlipped) fx.push('🔄 Colors Swapped');
-  if(secretPawnRevealed) fx.push('🕵️ Secret: '+PNAME[secretPawnType]);
+  if(colorFlipped) fx.push('Colors Swapped');
+  if(secretPawnRevealed) fx.push('Secret: '+PNAME[secretPawnType]);
   document.getElementById('activeEffects').textContent=fx.length?fx.join('\n'):'—';
   renderClock();
 }
@@ -633,7 +633,7 @@ function startClock(){
     if((clockW<=0&&ac==='w'&&!timeoutFired.w)||(clockB<=0&&ac==='b'&&!timeoutFired.b)){
       if(ac==='w')timeoutFired.w=true; else timeoutFired.b=true;
       const loser=ac==='w'?'White':'Black',winner=loser==='White'?'Black':'White';
-      const timeoutMsg=loser+' ran out of time!';log('⏰ '+timeoutMsg,'hell');setStatus('⏰ '+timeoutMsg);triggerTimeout(winner,loser);
+      const timeoutMsg=loser+' ran out of time!';log(timeoutMsg,'hell');setStatus(timeoutMsg);triggerTimeout(winner,loser);
     }
   },1000);
 }
@@ -743,7 +743,7 @@ function doMove(fr,fc,tr,tc){
   if(tp){
     if(invinciblePieces.has(tp.id)){
       // Can't capture invincible piece — move is cancelled
-      const invMsg=`${GLYPH[tp.color+tp.type]} is INVINCIBLE! Cannot be taken.`;
+      const invMsg=`${GLYPH[tp.color+tp.type]} is invincible! Cannot be taken.`;
       log(invMsg,'hell'); setStatus(invMsg); flashBoard('rgba(255,215,0,0.4)');
       board[fr][fc]=mp; board[tr][tc]=tp; // undo
       selected=null; validMoves=[]; renderBoard(); return;
@@ -864,7 +864,7 @@ function triggerRevolt(){
         const tgt=rand(targets),victim=board[tgt.r][tgt.c];
         const ms=getMoves(cr,cc,false,true);
         if(ms.some(m=>m.r===tgt.r&&m.c===tgt.c)){
-          const attackMsg=`⚔️ ${GLYPH[p.color+p.type]} attacks own ${GLYPH[victim.color+victim.type]}! Traitorous.`;
+          const attackMsg=`${GLYPH[p.color+p.type]} attacks own ${GLYPH[victim.color+victim.type]}! Traitorous.`;
           log(attackMsg,'hell'); setStatus(attackMsg);
           flashBoard('rgba(200,0,0,0.25)');
           capturedPieces.push({...victim}); board[tgt.r][tgt.c]=p; board[cr][cc]=null;
@@ -881,7 +881,7 @@ function triggerRevolt(){
 function triggerTimeout(winner,loser){
   // Show win screen briefly, then revert — time doesn't work in Hell
   gameOver=false; // un-end the game so clocks go negative
-  document.getElementById('winTitle').textContent=loser.toUpperCase()+' RAN OUT OF TIME!';
+  document.getElementById('winTitle').textContent=loser.toUpperCase()+' ran out of time!';
   document.getElementById('winSubtitle').textContent=winner+' wins on time... right?';
   document.getElementById('winScreen').classList.add('active');
   spawnConfetti();
@@ -945,7 +945,7 @@ function triggerAirstrike(){
   if(!targets.length)return;
   const{r:tr,c:tc}=rand(targets);
   const victim=board[tr][tc];
-  showBanner('Israeli airstike incoming!',`Bishop diving toward ${sq(tr,tc)}`);
+  showBanner('Israeli airstike incoming!',`ICBM diving toward ${sq(tr,tc)}`);
   flashBoard('rgba(0,255,68,0.3)');
   // Animate: create a flying green bishop overlay
   const boardRect=document.getElementById('boardOuter').getBoundingClientRect();
@@ -968,7 +968,7 @@ function triggerAirstrike(){
     flyBishop.style.opacity='0';
     flyBishop.style.transition='transform 0.3s,opacity 0.3s';
     if(board[tr][tc]){
-      const msg=`🟢 AIRSTRIKE! ${GLYPH[victim.color+victim.type]} at ${sq(tr,tc)} obliterated by the green bishop!`;
+      const msg=`Israeli airstrike! ${GLYPH[victim.color+victim.type]} at ${sq(tr,tc)} obliterated by Netanyahu.`;
       log(msg,'hell');setStatus(msg);flashBoard('rgba(0,255,68,0.5)');
       capturedPieces.push({...board[tr][tc]});
       scheduleRespawn(board[tr][tc]);
@@ -977,7 +977,7 @@ function triggerAirstrike(){
     }
     setTimeout(()=>flyBishop.remove(),400);
   },750);
-  log(`🟢 AIRSTRIKE BISHOP inbound on ${sq(tr,tc)}!`,'hell');
+  log(`Israeli airstrike inbound on ${sq(tr,tc)}!`,'hell');
 }
 
 // ── Turn Forfeiture ───────────────────────────────────────────────
@@ -1036,9 +1036,9 @@ function triggerArrival(){
   const extraType=rand(['Q','R','B','N','P']);
   const newPiece=mkP(extraColor,extraType);
   board[r][c]=newPiece;
-  const msg=`🌌 Arrival from D500: ${GLYPH[extraColor+extraType]} materialized at ${sq(r,c)}!`;
+  const msg=`Arrival from D500: ${GLYPH[extraColor+extraType]} materialized at ${sq(r,c)}!`;
   log(msg,'hell');setStatus(msg);flashBoard('rgba(180,0,255,0.3)');
-  showBanner('🌌 ARRIVAL FROM D500!',`${GLYPH[extraColor+extraType]} joined the board`);
+  showBanner('Arrival from D500!',`${GLYPH[extraColor+extraType]} joined the party`);
   renderBoard();
 }
 
