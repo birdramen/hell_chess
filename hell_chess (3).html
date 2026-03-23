@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HELL CHESS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Crimson+Pro:ital,wght@0,400;0,700;1,400&family=Courier+Prime:wght@400;700&display=swap');
+
+  :root {
+    --fire:       #ff5500;
+    --ember:      #ffaa00;
+    --gold:       #ffe066;
+    --dark:       #0d0608;
+    --board-light:#f0d9b5;
+    --board-dark: #7a3e28;
+    --panel:      #1c0e0e;
+    --text:       #f5e6d0;
+    --subtext:    #c8ad90;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(255,85,0,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 20%, rgba(120,0,0,0.09) 0%, transparent 55%);
+  }
+
+  h1 {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    text-align: center;
+    color: var(--fire);
+    text-shadow: 0 0 18px rgba(255,85,0,0.9), 0 0 50px rgba(255,85,0,0.4);
+    padding: 14px 16px 8px;
+    letter-spacing: 4px;
+    animation: flicker 4s infinite;
+  }
+  @keyframes flicker {
+    0%,89%,91%,93%,100% { opacity:1; }
+    90% { opacity:0.65; }
+    92% { opacity:0.9; }
+  }
+
+  .game-container {
+    display: flex; gap: 18px;
+    justify-content: center; align-items: flex-start;
+    padding: 8px 16px 24px; flex-wrap: wrap;
+  }
+
+  .side-panel {
+    width: 210px; background: var(--panel);
+    border: 1px solid rgba(255,85,0,0.35);
+    border-radius: 5px; padding: 13px;
+    font-family: 'Courier Prime', monospace; font-size: 12px;
+  }
+  .side-panel h3 {
+    color: var(--ember); font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 1.15rem; margin-bottom: 9px; text-align: center;
+  }
+  .panel-label { font-size: 10px; color: #886655; text-transform: uppercase; letter-spacing: 1px; margin: 8px 0 3px; }
+  hr.divider { border: none; border-top: 1px solid rgba(255,85,0,0.18); margin: 9px 0; }
+
+  .board-wrapper { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+
+  .board-outer {
+    border: 3px solid var(--fire);
+    box-shadow: 0 0 28px rgba(255,85,0,0.55), inset 0 0 14px rgba(0,0,0,0.45);
+    transition: transform 1.6s ease; position: relative;
+  }
+
+  #board { display: grid; grid-template-columns: repeat(8, 66px); grid-template-rows: repeat(8, 66px); }
+
+  .square {
+    width: 66px; height: 66px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 42px; cursor: pointer; position: relative; user-select: none;
+  }
+  .square.light { background: var(--board-light); }
+  .square.dark  { background: var(--board-dark); }
+  .square:hover { filter: brightness(1.12); }
+  .square.selected   { background: rgba(255,210,0,0.78) !important; }
+  .square.valid-move { background: rgba(55,210,80,0.42) !important; }
+  .square.valid-move::after {
+    content: ''; position: absolute;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(40,195,70,0.68); pointer-events: none;
+  }
+  .square.in-check { background: rgba(255,30,0,0.65) !important; }
+
+  .sq-label { position: absolute; font-family: 'Courier Prime', monospace; font-size: 9px; pointer-events: none; line-height: 1; }
+  .sq-label.file { bottom: 2px; right: 3px; }
+  .sq-label.rank { top: 2px; left: 3px; }
+  .square.light .sq-label { color: rgba(80,40,10,0.45); }
+  .square.dark  .sq-label { color: rgba(240,200,160,0.55); }
+
+  .piece { position: relative; z-index: 2; transition: transform 0.12s; line-height: 1; }
+  .piece:hover { transform: scale(1.1); }
+  .piece.white-piece { color: #ffffff; filter: drop-shadow(0px 1px 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,1)); }
+  .piece.black-piece { color: #111111; filter: drop-shadow(0px 1px 2px rgba(255,255,255,0.3)) drop-shadow(0 0 1px rgba(0,0,0,0.8)); }
+
+  .strike-badge {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; z-index: 6; background: rgba(255,200,0,0.12);
+    animation: strikeIn 0.4s ease;
+  }
+  @keyframes strikeIn { from { opacity:0; transform:scale(1.6); } to { opacity:1; transform:scale(1); } }
+
+  .status-bar {
+    background: rgba(0,0,0,0.55); border: 1px solid rgba(255,85,0,0.5);
+    border-radius: 4px; padding: 7px 16px; text-align: center;
+    font-family: 'Courier Prime', monospace; font-size: 13px;
+    width: 528px; color: var(--gold); min-height: 34px;
+  }
+
+  .turn-row {
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+    font-family: 'Courier Prime', monospace; font-size: 13px;
+    padding: 5px 12px; background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,85,0,0.28); border-radius: 4px;
+  }
+  .color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .dot-w { background: #eeeeec; border: 2px solid rgba(255,255,255,0.5); }
+  .dot-b { background: #191217; border: 2px solid rgba(255,255,255,0.4); }
+
+  .btn-row { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    background: linear-gradient(160deg, #3a0000, #620000);
+    border: 1px solid rgba(255,85,0,0.6); color: var(--text);
+    padding: 7px 15px; cursor: pointer; font-family: 'Courier Prime', monospace;
+    font-size: 12px; border-radius: 3px; transition: all 0.18s;
+  }
+  .btn:hover { background: linear-gradient(160deg, #620000, #3a0000); box-shadow: 0 0 9px rgba(255,85,0,0.45); }
+  .btn:active { transform: scale(0.96); }
+  .btn.end-turn-btn {
+    background: linear-gradient(160deg, #003800, #005f00);
+    border-color: rgba(60,210,60,0.65); color: #ccffcc; font-weight: bold;
+  }
+  .btn.end-turn-btn:hover { box-shadow: 0 0 9px rgba(60,210,60,0.4); }
+
+  #log { height: 190px; overflow-y: auto; font-size: 11px; line-height: 1.65; color: var(--subtext); }
+  #log .entry      { margin-bottom: 1px; }
+  #log .entry.hell { color: #ff7744; font-weight: bold; }
+  #log .entry.move { color: var(--text); }
+  #log .entry.sys  { color: var(--gold); font-style: italic; }
+  #log::-webkit-scrollbar { width: 3px; }
+  #log::-webkit-scrollbar-thumb { background: rgba(255,85,0,0.35); border-radius: 2px; }
+
+  .lb-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,85,0,0.13); font-size: 11px; }
+  .lb-rank { color: var(--fire); margin-right: 4px; }
+  .lb-you  { color: var(--gold); font-weight: bold; }
+  .rank-card { text-align: center; background: linear-gradient(135deg, #1a0808, #280e0e); border: 1px solid rgba(255,210,0,0.35); border-radius: 4px; padding: 8px; margin-bottom: 9px; }
+  .rank-big   { font-size: 2rem; color: var(--gold); font-weight: bold; line-height: 1; }
+  .rank-elo   { font-size: 1rem; color: var(--fire); }
+  .rank-small { font-size: 10px; color: #886655; }
+
+  .popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 1000; }
+  .popup-overlay.active { display: flex; }
+  .popup-box { background: var(--panel); border: 2px solid var(--fire); border-radius: 8px; padding: 28px 38px; text-align: center; max-width: 430px; box-shadow: 0 0 50px rgba(255,85,0,0.55); animation: popIn 0.28s ease; }
+  @keyframes popIn { from { transform: scale(0.55) rotate(-4deg); opacity:0; } to { transform:scale(1); opacity:1; } }
+  .popup-box h2 { font-family: 'UnifrakturMaguntia', cursive; font-size: 1.9rem; color: var(--fire); margin-bottom: 11px; }
+  .popup-box p  { font-size: 1.05rem; line-height: 1.6; margin-bottom: 18px; color: var(--text); }
+  .popup-btn { background: linear-gradient(135deg, #7a0000, #bb1100); border: 1px solid var(--fire); color: #fff; padding: 9px 22px; margin: 4px; cursor: pointer; font-family: 'Courier Prime', monospace; font-size: 13px; border-radius: 4px; transition: all 0.18s; }
+  .popup-btn:hover { filter: brightness(1.2); transform: scale(1.04); }
+  .popup-btn.sec { background: linear-gradient(135deg, #1c0a0a, #2e1010); border-color: rgba(255,85,0,0.3); }
+
+  #winScreen, #waitNoScreen { position: fixed; inset: 0; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  #winScreen { background: radial-gradient(ellipse, #150900, #000); }
+  #winScreen.active  { display: flex; }
+  #winScreen h1 { font-size: 4.5rem; color: var(--gold); animation: winPulse 0.55s infinite alternate; }
+  @keyframes winPulse { from { text-shadow: 0 0 25px gold; } to { text-shadow: 0 0 70px gold, 0 0 110px orange; } }
+  .confetti-area { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .conf-piece { position:absolute; border-radius:2px; animation: confFall linear forwards; }
+  @keyframes confFall { from { transform: translateY(-20px) rotate(0); opacity:1; } to { transform: translateY(105vh) rotate(720deg); opacity:0; } }
+  #waitNoScreen { background: #000; }
+  #waitNoScreen.active { display: flex; }
+  #waitNoScreen h1 { font-size: 2.8rem; color: #cc0000; animation: glitch 0.09s infinite; }
+  @keyframes glitch { 0%{transform:translate(0,0);} 25%{transform:translate(-3px,1px);} 50%{transform:translate(3px,-1px);} 75%{transform:translate(-1px,2px);} }
+
+  #handoffScreen { position: fixed; inset: 0; z-index: 3000; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px; }
+  #handoffScreen.active { display: flex; }
+  #handoffScreen h2 { font-family: 'UnifrakturMaguntia', cursive; font-size: 2.4rem; color: var(--fire); text-shadow: 0 0 20px rgba(255,85,0,0.7); }
+  #handoffPlayerLabel { font-size: 1.6rem; color: var(--gold); font-family: 'Courier Prime', monospace; font-weight: bold; }
+  #handoffScreen p { font-size: 1rem; color: var(--subtext); font-family: 'Courier Prime', monospace; }
+
+  .secret-toast { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2a0055, #5500aa); border: 2px solid #aa44ff; border-radius: 7px; padding: 11px 24px; font-family: 'Courier Prime', monospace; font-size: 13px; color: #cc99ff; z-index: 600; text-align: center; box-shadow: 0 0 28px rgba(150,0,255,0.55); animation: toastIn 0.4s ease, toastOut 0.4s ease 3.6s forwards; }
+  @keyframes toastIn  { from { opacity:0; transform:translateX(-50%) translateY(-16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+  @keyframes toastOut { to   { opacity:0; transform:translateX(-50%) translateY(-16px); } }
+
+  #activeEffects { font-size: 11px; color: var(--ember); line-height: 1.9; white-space: pre-line; }
+  #capturedStrip { font-size: 17px; line-height: 1.8; word-break: break-all; min-height: 24px; }
+
+  /* TIME SELECTION */
+  #timeSelectScreen { position: fixed; inset: 0; z-index: 4000; background: var(--dark); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; padding: 40px; }
+  #timeSelectScreen h2 { font-family: 'UnifrakturMaguntia', cursive; font-size: 2.6rem; color: var(--fire); text-shadow: 0 0 18px rgba(255,85,0,0.8); }
+  #timeSelectScreen p { color: var(--subtext); font-family: 'Courier Prime', monospace; font-size: 13px; }
+  .time-options { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .time-opt { background: linear-gradient(160deg, #2a0000, #4a0000); border: 2px solid rgba(255,85,0,0.4); border-radius: 8px; padding: 16px 24px; cursor: pointer; font-family: 'Courier Prime', monospace; color: var(--text); font-size: 1rem; transition: all 0.2s; min-width: 100px; }
+  .time-opt:hover { border-color: var(--fire); box-shadow: 0 0 16px rgba(255,85,0,0.5); transform: scale(1.05); }
+  .time-opt.selected { border-color: var(--gold); box-shadow: 0 0 16px rgba(255,224,102,0.5); background: linear-gradient(160deg, #2a1a00, #4a3000); }
+  .time-opt .opt-time { font-size: 1.8rem; font-weight: bold; color: var(--gold); display: block; }
+  .time-opt .opt-label { font-size: 11px; color: var(--subtext); display: block; margin-top: 4px; }
+  .start-game-btn { background: linear-gradient(135deg, #003800, #006200); border: 2px solid rgba(60,210,60,0.65); color: #ccffcc; font-family: 'Courier Prime', monospace; font-size: 1.1rem; padding: 14px 40px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+  .start-game-btn:hover { box-shadow: 0 0 20px rgba(60,210,60,0.5); transform: scale(1.04); }
+
+  /* CHESS CLOCK */
+  .clocks { display: flex; gap: 10px; justify-content: center; width: 528px; }
+  .clock-box { flex: 1; background: var(--panel); border: 2px solid rgba(255,85,0,0.3); border-radius: 5px; padding: 7px 12px; font-family: 'Courier Prime', monospace; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: border-color 0.3s, box-shadow 0.3s; }
+  .clock-box.active-clock { border-color: var(--gold); box-shadow: 0 0 12px rgba(255,224,102,0.5); }
+  .clock-box.low-time { border-color: var(--fire) !important; box-shadow: 0 0 14px rgba(255,85,0,0.7) !important; animation: clockPanic 0.5s infinite alternate; }
+  @keyframes clockPanic { to { background: rgba(80,0,0,0.6); } }
+  .clock-label { font-size: 10px; color: #886655; text-transform: uppercase; letter-spacing: 1px; }
+  .clock-time  { font-size: 1.6rem; color: var(--gold); font-weight: bold; letter-spacing: 2px; }
+
+  /* HELL EVENT EFFECTS */
+  @keyframes tunnelOut { 0%{transform:scale(1) rotate(0);opacity:1;filter:hue-rotate(0deg) brightness(1);} 40%{transform:scale(1.4) rotate(180deg);opacity:0.8;filter:hue-rotate(180deg) brightness(2);} 100%{transform:scale(0) rotate(360deg);opacity:0;filter:hue-rotate(360deg) brightness(3);} }
+  @keyframes tunnelIn  { 0%{transform:scale(0) rotate(-360deg);opacity:0;filter:hue-rotate(360deg) brightness(3);} 60%{transform:scale(1.3) rotate(-30deg);opacity:0.9;filter:hue-rotate(60deg) brightness(1.5);} 100%{transform:scale(1) rotate(0);opacity:1;filter:hue-rotate(0deg) brightness(1);} }
+  .tunnel-out { animation: tunnelOut 0.45s ease forwards; }
+  .tunnel-in  { animation: tunnelIn  0.5s ease forwards; }
+
+  @keyframes driftPulse { 0%,100%{box-shadow:none;} 50%{box-shadow:0 0 20px 6px rgba(100,180,255,0.8);} }
+  .drifting-sq { animation: driftPulse 0.5s ease; }
+
+  @keyframes respawnBurst { 0%{box-shadow:inset 0 0 0 0 rgba(255,215,0,0);background-color:inherit;} 20%{box-shadow:inset 0 0 40px 20px rgba(255,215,0,0.9);background-color:rgba(255,215,0,0.5);} 60%{box-shadow:inset 0 0 20px 8px rgba(255,140,0,0.6);background-color:rgba(255,140,0,0.2);} 100%{box-shadow:none;background-color:inherit;} }
+  .respawn-burst { animation: respawnBurst 1.2s ease forwards; }
+
+  @keyframes respawnPop { 0%{transform:scale(0);opacity:0;} 70%{transform:scale(1.2);opacity:1;} 100%{transform:scale(1);} }
+  .respawn-pop { animation: respawnPop 0.5s ease; }
+
+  @keyframes surgeFlash { 0%,100%{filter:none;} 40%{filter:drop-shadow(0 0 10px rgba(60,255,80,1)) brightness(1.6);} }
+  .surge-flash { animation: surgeFlash 0.6s ease; }
+
+  #eventFlash { position: fixed; inset: 0; pointer-events: none; z-index: 500; opacity: 0; }
+  #eventFlash.active { animation: flashFade 0.7s ease forwards; }
+  @keyframes flashFade { 0%{opacity:0.7;} 100%{opacity:0;} }
+
+  #eventBanner { position: fixed; top: 0; left: 50%; transform: translateX(-50%) translateY(-100%); z-index: 600; background: linear-gradient(135deg, #1a0000, #3d0000); border: 2px solid var(--fire); border-top: none; border-radius: 0 0 10px 10px; padding: 10px 30px; text-align: center; font-family: 'UnifrakturMaguntia', cursive; font-size: 1.5rem; color: var(--fire); text-shadow: 0 0 10px rgba(255,85,0,0.8); box-shadow: 0 4px 30px rgba(255,85,0,0.5); transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
+  #eventBanner.show { transform: translateX(-50%) translateY(0); }
+  #eventBanner .banner-sub { font-family: 'Courier Prime', monospace; font-size: 0.75rem; color: var(--subtext); display: block; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div id="eventFlash"></div>
+<div id="eventBanner"><span id="eventBannerText"></span><span class="banner-sub" id="eventBannerSub"></span></div>
+<h1 id="gameTitle">Hell Chess</h1>
+
+<div class="game-container">
+  <div class="side-panel">
+    <h3>Stats</h3>
+    <div class="rank-card">
+      <div class="rank-small">GLOBAL RANK</div>
+      <div class="rank-big" id="rankNum">#2</div>
+      <div class="rank-elo" id="eloDisplay">3000 ELO</div>
+      <div class="rank-small" id="rankFlavor">Top 0.01% worldwide</div>
+    </div>
+    <h3>📋 Leaderboard</h3>
+    <div id="leaderboard"></div>
+  </div>
+
+  <div class="board-wrapper">
+    <div class="turn-row">
+      <div class="color-dot" id="turnDot"></div>
+      <span id="turnLabel">White's Turn</span>
+    </div>
+    <div style="display:flex;gap:10px;width:528px;">
+      <div class="clock-box" id="clockBoxW"><div class="clock-label">⬜ White</div><div class="clock-time" id="clockW">5:00</div></div>
+      <div class="clock-box" id="clockBoxB"><div class="clock-label">⬛ Black</div><div class="clock-time" id="clockB">5:00</div></div>
+    </div>
+    <div class="board-outer" id="boardOuter"><div id="board"></div></div>
+    <div class="status-bar" id="statusBar">Welcome to Hell.</div>
+    <div class="btn-row">
+      <button class="btn" onclick="getHint()">💡 Hint</button>
+      <button class="btn end-turn-btn" onclick="endTurn()">🔁 End Turn</button>
+      <button class="btn" onclick="resignGame()">🏳️ Resign</button>
+      <button class="btn" onclick="startNewGame()">🔄 New Game</button>
+    </div>
+  </div>
+
+  <div class="side-panel">
+    <h3>Comedy of Errors</h3>
+    <div id="log"></div>
+    <hr class="divider">
+    <div class="panel-label">Captured</div>
+    <div id="capturedStrip">—</div>
+    <hr class="divider">
+    <div class="panel-label">Active Effects</div>
+    <div id="activeEffects">—</div>
+  </div>
+</div>
+
+<!-- POPUPS -->
+<div class="popup-overlay" id="popup1">
+  <div class="popup-box"><h2>Hold On</h2><p id="popup1Msg"></p>
+    <button class="popup-btn" onclick="popup1Yes()">Yes, do it.</button>
+    <button class="popup-btn sec" onclick="cancelPopup()">No, I'm a fool</button>
+  </div>
+</div>
+<div class="popup-overlay" id="popup2">
+  <div class="popup-box"><h2>Really?</h2><p id="popup2Msg"></p>
+    <button class="popup-btn" onclick="popup2Yes()">I am absolutely certain.</button>
+    <button class="popup-btn sec" onclick="cancelPopup()">I see the error in my ways</button>
+  </div>
+</div>
+<div class="popup-overlay" id="popup3">
+  <div class="popup-box"><h2 id="popup3Title">Notice</h2><p id="popup3Msg"></p>
+    <button class="popup-btn" onclick="closePopup3()">Fine.</button>
+  </div>
+</div>
+<div class="popup-overlay" id="hintPopup">
+  <div class="popup-box"><h2>💡 Expert Advice</h2><p id="hintMsg"></p>
+    <button class="popup-btn" onclick="document.getElementById('hintPopup').classList.remove('active')">Thanks, very helpful.</button>
+  </div>
+</div>
+
+<!-- WIN -->
+<div id="winScreen">
+  <div class="confetti-area" id="confettiArea"></div>
+  <h1 id="winTitle">YOU WIN!</h1>
+  <p id="winSubtitle" style="font-size:1.4rem;color:var(--text);margin-top:18px;font-family:'Crimson Pro',serif;"></p>
+</div>
+
+<!-- WAIT NO -->
+<div id="waitNoScreen">
+  <h1 id="waitNoTitle">Just kidding.</h1>
+  <p id="waitNoSub" style="font-size:1.1rem;color:#666;margin-top:14px;font-family:'Courier Prime',monospace;"></p>
+</div>
+
+<!-- HANDOFF -->
+<div id="handoffScreen">
+  <h2 id="handoffTitle">Pass the Device</h2>
+  <div id="handoffPlayerLabel"></div>
+  <p id="handoffSub"></p>
+  <button class="popup-btn" style="font-size:1rem;padding:12px 32px;margin-top:8px;" onclick="dismissHandoff()">I'm ready — show the board</button>
+</div>
+
+<!-- TIME SELECT -->
+<div id="timeSelectScreen">
+  <h2>Hell Chess</h2>
+  <p>Select time per player</p>
+  <div class="time-options">
+    <div class="time-opt" onclick="selectTime(1)"  id="topt-1">  <span class="opt-time">1:00</span>  <span class="opt-label">Bullet</span></div>
+    <div class="time-opt" onclick="selectTime(3)"  id="topt-3">  <span class="opt-time">3:00</span>  <span class="opt-label">Blitz</span></div>
+    <div class="time-opt selected" onclick="selectTime(5)" id="topt-5"><span class="opt-time">5:00</span><span class="opt-label">Standard</span></div>
+    <div class="time-opt" onclick="selectTime(10)" id="topt-10"> <span class="opt-time">10:00</span> <span class="opt-label">Rapid</span></div>
+    <div class="time-opt" onclick="selectTime(99)" id="topt-99"> <span class="opt-time">∞</span>      <span class="opt-label">No limit</span></div>
+  </div>
+  <button class="start-game-btn" onclick="confirmTimeAndStart()">Descend into Hell →</button>
+  <p style="margin-top:-8px;font-size:11px;color:#554433;">Your shitty moves will be penalised regardless of time setting.</p>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  ✏️  CUSTOMIZE_TEXT — edit anything here to change game text
+// ════════════════════════════════════════════════════════════════
+const T = {
+  gameTitle: "Hell Chess",
+  welcomeMsg: "Welcome to Hell. Bonne chance!",
+
+  handoffTitle:      "Pass the Device",
+  handoffSub:        "Hand the screen to the other player, then press the button below.",
+  handoffWhiteLabel: "⬜ White's Turn",
+  handoffBlackLabel: "⬛ Black's Turn",
+
+  popup1Messages: [
+    "Are you sure you want to move there?",
+    "That seems… inadvisable. Proceed?",
+    "Mate in one. Think hard.",
+    "The piece you're moving seems nervous. Still go?",
+    "Hell Chess Legal Dept. requires your consent to proceed.",
+    "Our algorithm rates this move -6/10. Are you sure?",
+    "You can lead a horse to water...",
+    "There's no hope for you.",
+  ],
+
+  popup2Messages: [
+    "Are you positively, ineffably sure? Absolutely certain?",
+    "Last chance. Reconsider. We beg you.",
+    "Hell Chess Inc. cannot be held civilly liable for the poor decision you're about to make",
+    "You can still back out. No shame. Well, lots of shame, actually.",
+    "Secondary confirmation required per Hell Chess Protocol §42b.",
+    "Even the piece doesn't want to do this.",
+  ],
+
+  popup3FinalTitle: "Final Verification",
+  popup3FinalMsg:   "You've confirmed twice. This is the last one. Probably.",
+
+  randomPopups: [
+    ["Highly Suspect Move",    "This move looks suspicious. This your first time?"],
+    ["Statistical Warning",    "Our algorithm predicts a 94.7% chance this is a mistake."],
+    ["Uh Oh!",                 "The piece you just moved seems to be fostering revolutionary sentiments. Hide your wealth!"],
+    ["Prophecy",               "The ancient oracle has foretold your imminent demise"],
+    ["Terms & Conditions",     "By playing this move, you agree to be plagued by the memory of your upcoming failure."],
+    ["Reality Check",          "Hell Chess has detected unwarranted levels of optimism on your side of the board."],
+    ["Announcement",           "This is a routine notification. We have nothing of significance to tell you."],
+  ],
+
+  hintTemplates: [
+    "Move your {piece} from {from} to {to}. Trust us.",
+    "{piece} to {to}. This is the right call.",
+    "Our AI recommends: {piece} {from}→{to}. World-class play.",
+    "Have you considered {piece} to {to}? It came to us in a vision.",
+    "Top grandmasters are raving about {piece} {from}→{to}. Quietly.",
+  ],
+  hintSuffix: "(Certified Best Move™)",
+
+  tunnelMsg:    (piece, from, to) => `${piece} quantum-tunneled from ${from} to ${to}!`,
+  tunnelStatus: (piece)           => `Quantum tunneling: ${piece} teleported!`,
+
+  pawnSurgeMsg:    (n) => `Pawn surge! ${n} pawns advanced simultaneously!`,
+  pawnSurgeStatus: "Pawn surge! All eligible pawns charged forward!",
+
+  rotateMsg:        "Board rotated! You are now playing the other color!",
+  rotateStatus:     "The board rotated. You are now your own worst enemy.",
+  rotatePopupTitle: "Board Rotation!",
+  rotatePopupMsg:   "The board has rotated 180°. You are now playing the other color. Everything you knew is wrong.",
+
+  driftMsg: "Some squares drifted. This board's craftmanship is ass.",
+
+  rookStrikeMessages: [
+    "Rook goes on strike! Demands: higher wages, shorter diagonals.",
+    "Rook has joined the Piece Workers Union. Will not move until demands are met.",
+    "Rook is unionizing. It will not be moved (literally).",
+  ],
+  pawnStrikeMessages: [
+    "Pawn refuses to advance! Claims: 'Come the revolution, we will string 'em up.'",
+    "Pawn has started a protest. Wages too low, promotions too random.",
+    "Pawn is on strike.",
+  ],
+  strikeEndMsg: "Strike ended. Piece returned to work (grudgingly).",
+
+  respawnMsg:    (piece) => `Undead ${piece} resurrected on the board!`,
+  respawnStatus: "A captured piece just… came back.",
+
+  panicMsg:    (from, to) => `A pawn panicked and moved itself! ${from}→${to}`,
+  panicStatus: "A pawn moved without anyone's permission.",
+
+  promoMsg:    (type) => `Pawn randomly promoted to ${type}!`,
+  promoStatus: (type) => `Random promotion: your pawn is now a ${type}!`,
+
+  illegalMsg:    "⚡ An illegal move somehow succeeded.",
+  illegalStatus: "That was illegal. We don't care.",
+
+  secretToastHTML: (type) => `<strong>Mystery unveiled!</strong><br>That pawn was actually a <strong>${type}</strong>!`,
+  secretLogMsg:    (type) => `Secret pawn revealed as ${type}!`,
+
+  winTitle:    (winner) => `${winner.toUpperCase()} wins!`,
+  winSubtitle: "Congratulations! You have conquered Hell Chess!",
+  waitNoTitle: "Just kidding.",
+  waitNoSub:   "[board reverting…]",
+  afterWaitNo:    "Outcome overturned. The game continues. It always continues.",
+  afterWaitNoLog: "Game state reverted. Back to the grind.",
+
+  resignPopupTitle: "Resign",
+  resignPopupMsg:   "You thought you could escape? A new game will start shortly.",
+
+  lbNames:      ["Stella_Rose","BobbyFischer1945","MaggyC","Real_Kasparov_Official","Polgar420","Anatoly_K","Ran_Out_Of","Creative_Usernames"],
+  lbElos:       [3201, 3180, 3156, 3142, 3089, 3044, 3021, 2998],
+  lbYouIndex:   1,
+  lbRankDisplay:"#2",
+  lbEloDisplay: "3000 ELO",
+  lbFlavor:     "Top 0.01% worldwide",
+
+  clockPenaltyMin: 3,
+  clockPenaltyMax: 12,
+  clockPenaltyMsgs: [
+    "Didn't like that. −{n}s.",
+    "Questionable choice. −{n}s stolen from your clock.",
+    "Hell Chess disagrees. −{n}s.",
+    "The grand overseer is displeased. −{n}s.",
+    "Feeling capricious. −{n}s removed.",
+  ],
+
+  revoltBanner:    "Internal revolt!",
+  revoltBannerSub: "A piece has turned on its own team!",
+
+  gameStartLog: "Game started. Lower your hopes.",
+};
+// ════════════════════════════════════════════════════════════════
+//  END CUSTOMIZE_TEXT
+// ════════════════════════════════════════════════════════════════
+
+const GLYPH = { wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙', bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟' };
+const PNAME = { K:'King',Q:'Queen',R:'Rook',B:'Bishop',N:'Knight',P:'Pawn' };
+const CONF_COLORS = ['#ff5500','#ffcc00','#ff2266','#00ccff','#88ff00','#ff88ff'];
+
+let board=[], turn='w', selected=null, validMoves=[], moveHistory=[];
+let capturedPieces=[], moveCount=0, gameOver=false, boardRotated=false, colorFlipped=false;
+let secretPawnId=null, secretPawnType=null, secretPawnRevealed=false;
+let onStrikePieces=new Set(), pendingMove=null, pieceId=0;
+let revoltPieces=new Set(), waitingForEndTurn=false, pendingClockColor=null;
+let selectedMinutes=5, clockW=300, clockB=300, clockInterval=null;
+const INFINITE_TIME=99;
+let lastMovedPieceId=null;
+let lastTunnel=-99, lastSurge=-99, lastRotate=-99, lastDrift=-99,
+    lastUnion=-99, lastRandPopup=-99, lastRevolt=-99;
+
+const onBoard = (r,c) => r>=0&&r<8&&c>=0&&c<8;
+const sq  = (r,c) => String.fromCharCode(97+c)+(8-r);
+const mkP = (color,type) => ({ color, type, id:pieceId++, onStrike:false });
+const rand = arr => arr[Math.floor(Math.random()*arr.length)];
+const pick = p => Math.random()<p;
+
+function buildBoard() {
+  board = Array(8).fill(null).map(()=>Array(8).fill(null));
+  function drawBackRank() {
+    const pool=['Q','Q','R','R','R','B','B','B','N','N','N','Q','R','B'];
+    const poolCopy=[...pool], seven=[];
+    for(let i=0;i<7;i++){ const idx=Math.floor(Math.random()*poolCopy.length); seven.push(poolCopy.splice(idx,1)[0]); }
+    return ['K',...seven].sort(()=>Math.random()-0.5);
+  }
+  ['w','b'].forEach(color=>{
+    const backRow=color==='w'?7:0, frontRow=color==='w'?6:1, back=drawBackRank();
+    for(let c=0;c<8;c++) board[backRow][c]=mkP(color,back[c]);
+    for(let c=0;c<8;c++) board[frontRow][c]=mkP(color,'P');
+  });
+  const spCol=Math.floor(Math.random()*8);
+  secretPawnId=board[6][spCol].id;
+  secretPawnType=rand(['R','B','N','Q']);
+  setTimeout(()=>showSecretStartToast(PNAME[secretPawnType],spCol),800);
+}
+
+function selectTime(mins) {
+  selectedMinutes=mins;
+  document.querySelectorAll('.time-opt').forEach(el=>el.classList.remove('selected'));
+  const el=document.getElementById('topt-'+mins); if(el)el.classList.add('selected');
+}
+function confirmTimeAndStart() { document.getElementById('timeSelectScreen').style.display='none'; startNewGame(); }
+
+function startNewGame() {
+  turn='w'; selected=null; validMoves=[]; moveHistory=[];
+  capturedPieces=[]; moveCount=0; gameOver=false; boardRotated=false;
+  secretPawnRevealed=false; colorFlipped=false; onStrikePieces=new Set();
+  pendingMove=null; pieceId=0; lastMovedPieceId=null;
+  revoltPieces=new Set(); waitingForEndTurn=false; pendingClockColor=null;
+  clockW=selectedMinutes===INFINITE_TIME?Infinity:selectedMinutes*60;
+  clockB=selectedMinutes===INFINITE_TIME?Infinity:selectedMinutes*60;
+  stopClock();
+  lastTunnel=lastSurge=lastRotate=lastDrift=lastUnion=lastRandPopup=lastRevolt=-99;
+  ['winScreen','waitNoScreen','handoffScreen','popup1','popup2','popup3','hintPopup']
+    .forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById('boardOuter').style.transform='';
+  document.getElementById('log').innerHTML='';
+  buildBoard(); renderAll(); setStatus(T.welcomeMsg); log(T.gameStartLog,'sys'); renderLeaderboard(); startClock();
+}
+
+function renderAll() { renderBoard(); renderSide(); }
+
+function renderBoard() {
+  const el=document.getElementById('board'); el.innerHTML='';
+  for(let r=0;r<8;r++) {
+    for(let c=0;c<8;c++) {
+      const div=document.createElement('div');
+      div.className='square '+((r+c)%2===0?'light':'dark');
+      div.dataset.r=r; div.dataset.c=c;
+      if(selected&&selected.r===r&&selected.c===c) div.classList.add('selected');
+      if(validMoves.some(m=>m.r===r&&m.c===c)) div.classList.add('valid-move');
+      if(r===7){const l=document.createElement('span');l.className='sq-label file';l.textContent=String.fromCharCode(97+c);div.appendChild(l);}
+      if(c===0){const l=document.createElement('span');l.className='sq-label rank';l.textContent=8-r;div.appendChild(l);}
+      const p=board[r][c];
+      if(p){
+        if(p.type==='K'&&isInCheck(p.color)) div.classList.add('in-check');
+        const span=document.createElement('span');
+        span.className='piece '+(p.color==='w'?'white-piece':'black-piece');
+        span.textContent=(p.id===secretPawnId)?GLYPH[p.color+'P']:GLYPH[p.color+p.type];
+        div.appendChild(span);
+        if(p.onStrike){const s=document.createElement('div');s.className='strike-badge';s.textContent='🪧';div.appendChild(s);}
+        if(revoltPieces.has(p.id)){ span.style.filter='drop-shadow(0 0 8px rgba(255,0,0,1)) drop-shadow(0 0 3px #ff0000)'; span.title='REVOLTING — may attack friendlies!'; }
+      }
+      div.addEventListener('click',()=>handleClick(r,c));
+      el.appendChild(div);
+    }
+  }
+  document.getElementById('boardOuter').style.transform=boardRotated?'rotate(180deg)':'';
+}
+
+function renderSide() {
+  const aColor=activeTurn();
+  document.getElementById('turnLabel').textContent=(aColor==='w'?'White':'Black')+"'s Turn";
+  document.getElementById('turnDot').className='color-dot '+(aColor==='w'?'dot-w':'dot-b');
+  document.getElementById('capturedStrip').textContent=capturedPieces.length?capturedPieces.map(p=>GLYPH[p.color+p.type]).join(' '):'—';
+  const fx=[];
+  if(onStrikePieces.size) fx.push('🪧 Strike ('+onStrikePieces.size+' piece'+(onStrikePieces.size>1?'s':'')+')');
+  if(colorFlipped) fx.push('🔄 Colors Swapped');
+  if(secretPawnRevealed) fx.push('🕵️ Secret: '+PNAME[secretPawnType]);
+  document.getElementById('activeEffects').textContent=fx.length?fx.join('\n'):'—';
+  renderClock();
+}
+
+function fmtTime(s){
+  if(!isFinite(s))return'∞';
+  const neg=s<0,abs=Math.abs(Math.floor(s)),m=Math.floor(abs/60),sec=abs%60;
+  return (neg?'-':'')+m+':'+(sec<10?'0':'')+sec;
+}
+function renderClock(){
+  const ac=activeTurn();
+  const wEl=document.getElementById('clockW'),bEl=document.getElementById('clockB');
+  const bw=document.getElementById('clockBoxW'),bb=document.getElementById('clockBoxB');
+  if(wEl)wEl.textContent=fmtTime(clockW);
+  if(bEl)bEl.textContent=fmtTime(clockB);
+  if(bw&&bb){
+    bw.classList.toggle('active-clock',ac==='w'); bb.classList.toggle('active-clock',ac==='b');
+    bw.classList.toggle('low-time',isFinite(clockW)&&clockW>0&&clockW<=30);
+    bb.classList.toggle('low-time',isFinite(clockB)&&clockB>0&&clockB<=30);
+  }
+}
+function startClock(){
+  stopClock();
+  if(selectedMinutes===INFINITE_TIME)return;
+  clockInterval=setInterval(()=>{
+    if(gameOver)return;
+    // While waiting for End Turn, keep ticking against the player who just moved
+    const ac = pendingClockColor ? pendingClockColor : activeTurn();
+    if(ac==='w')clockW--; else clockB--;
+    renderClock();
+    if((clockW<=0&&ac==='w')||(clockB<=0&&ac==='b')){
+      stopClock();
+      const loser=ac==='w'?'White':'Black',winner=loser==='White'?'Black':'White';
+      const timeoutMsg=loser+' ran out of time!';log('⏰ '+timeoutMsg,'hell');setStatus('⏰ '+timeoutMsg);gameOver=true;triggerTimeout(winner,loser);
+    }
+  },1000);
+}
+function stopClock(){ if(clockInterval){clearInterval(clockInterval);clockInterval=null;} }
+
+function penaliseClock(color){
+  if(selectedMinutes===INFINITE_TIME)return;
+  const n=T.clockPenaltyMin+Math.floor(Math.random()*(T.clockPenaltyMax-T.clockPenaltyMin+1));
+  if(color==='w')clockW=Math.max(-999,clockW-n); else clockB=Math.max(-999,clockB-n);
+  const msg=rand(T.clockPenaltyMsgs).replace('{n}',n+'s');
+  setStatus(msg); log(msg,'hell');
+  const el=document.getElementById(color==='w'?'clockW':'clockB');
+  if(el){el.style.color='var(--fire)';setTimeout(()=>el.style.color='',1000);}
+  renderClock();
+}
+function aiJudgeMove(fr,fc,tr,tc,movingColor){
+  let bad=false;
+  const opp=movingColor==='w'?'b':'w';
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]?.color===opp&&getMoves(r,c,true).some(m=>m.r===tr&&m.c===tc)){bad=true;break;}}
+  if(board[tr][tc]?.type==='K'&&!isInCheck(movingColor))bad=true;
+  if(pick(0.20))bad=true;
+  if(bad)penaliseClock(movingColor);
+}
+
+function renderLeaderboard(){
+  document.getElementById('rankNum').textContent=T.lbRankDisplay;
+  document.getElementById('eloDisplay').textContent=T.lbEloDisplay;
+  document.getElementById('rankFlavor').textContent=T.lbFlavor;
+  document.getElementById('leaderboard').innerHTML=T.lbNames.map((name,i)=>`
+    <div class="lb-row"><span><span class="lb-rank">#${i+1}</span><span class="${i===T.lbYouIndex?'lb-you':''}">${i===T.lbYouIndex?'YOU':name}</span></span><span style="color:var(--fire)">${T.lbElos[i]}</span></div>`).join('');
+}
+
+function activeTurn(){ return colorFlipped?(turn==='w'?'b':'w'):turn; }
+
+function handleClick(r,c){
+  if(gameOver)return;
+  if(waitingForEndTurn){setStatus('Press End Turn to pass to the next player.');return;}
+  const p=board[r][c], active=activeTurn();
+  if(selected){
+    const mp=board[selected.r][selected.c];
+    const isValid=validMoves.some(m=>m.r===r&&m.c===c);
+    if(isValid){
+      if(mp.onStrike){setStatus(`${GLYPH[mp.color+mp.type]} refuses! (On strike)`);selected=null;validMoves=[];renderBoard();return;}
+      if(pick(0.30)){pendingMove={fr:selected.r,fc:selected.c,tr:r,tc:c};showPopup1();return;}
+      doMove(selected.r,selected.c,r,c);
+    } else if(p&&p.color===active){
+      selectPiece(r,c);
+    } else {
+      const isRevoltTarget=p&&p.color===active&&revoltPieces.has(board[selected.r][selected.c]?.id);
+      if((p&&p.color!==active&&pick(0.10))||isRevoltTarget){log(T.illegalMsg,'hell');setStatus(T.illegalStatus);doMove(selected.r,selected.c,r,c);}
+      else{selected=null;validMoves=[];renderBoard();}
+    }
+  } else {
+    if(p&&p.color===active)selectPiece(r,c);
+  }
+}
+
+function selectPiece(r,c){ selected={r,c}; const p=board[r][c]; validMoves=getMoves(r,c,false,p&&revoltPieces.has(p.id)); renderBoard(); }
+
+function getMoves(r,c,raw=false,inRevolt=false){
+  const p=board[r][c]; if(!p)return[];
+  let type=p.type;
+  if(!raw&&p.id===secretPawnId&&secretPawnRevealed)type=secretPawnType;
+  const opp=p.color==='w'?'b':'w', moves=[];
+  const add=(nr,nc,capOnly=false)=>{
+    if(!onBoard(nr,nc))return;
+    if(!board[nr][nc]){if(!capOnly)moves.push({r:nr,c:nc});}
+    else if(board[nr][nc].color===opp)moves.push({r:nr,c:nc});
+    else if(inRevolt&&board[nr][nc].color!==opp&&board[nr][nc].type!=='K')moves.push({r:nr,c:nc});
+  };
+  const slide=(dr,dc)=>{let nr=r+dr,nc=c+dc;while(onBoard(nr,nc)){if(!board[nr][nc])moves.push({r:nr,c:nc});else{if(board[nr][nc].color===opp)moves.push({r:nr,c:nc});break;}nr+=dr;nc+=dc;}};
+  switch(type){
+    case 'P':{const dir=p.color==='w'?-1:1,sr=p.color==='w'?6:1;if(onBoard(r+dir,c)&&!board[r+dir][c]){moves.push({r:r+dir,c});if(r===sr&&onBoard(r+2*dir,c)&&!board[r+2*dir][c])moves.push({r:r+2*dir,c});}[[dir,-1],[dir,1]].forEach(([dr,dc])=>add(r+dr,c+dc,true));break;}
+    case 'N':[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(([dr,dc])=>add(r+dr,c+dc));break;
+    case 'B':[[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc));break;
+    case 'R':[[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>slide(dr,dc));break;
+    case 'Q':[[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>slide(dr,dc));break;
+    case 'K':[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(r+dr,c+dc));break;
+  }
+  return moves;
+}
+
+function isInCheck(color){
+  let kr=-1,kc=-1;
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]?.type==='K'&&board[r][c].color===color){kr=r;kc=c;}}
+  if(kr===-1)return false;
+  const opp=color==='w'?'b':'w';
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]?.color===opp&&getMoves(r,c,true).some(m=>m.r===kr&&m.c===kc))return true;}
+  return false;
+}
+function hasAnyMoves(color){
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]?.color===color&&getMoves(r,c).length>0)return true;}
+  return false;
+}
+
+function doMove(fr,fc,tr,tc){
+  moveHistory.push({board:JSON.parse(JSON.stringify(board)),turn,capturedPieces:[...capturedPieces],moveCount,secretPawnRevealed,boardRotated,colorFlipped});
+  if(moveHistory.length>25)moveHistory.shift();
+  const mp=board[fr][fc],tp=board[tr][tc];
+  // Log move notation first — higher-priority events (capture, promo, secret) overwrite it
+  moveCount++;
+  const moveNotation=`${GLYPH[mp.color+mp.type]} ${sq(fr,fc)}→${sq(tr,tc)}`; log(moveNotation,'move'); setStatus(moveNotation);
+  if(mp.id===secretPawnId&&!secretPawnRevealed){secretPawnRevealed=true;showSecretToast(PNAME[secretPawnType]);const secretMsg=T.secretLogMsg(PNAME[secretPawnType]);log(secretMsg,'hell');setStatus(secretMsg);}
+  if(tp){capturedPieces.push({...tp});scheduleRespawn(tp);const capMsg=`${GLYPH[tp.color+tp.type]} captured!`;log(capMsg,'hell');setStatus(capMsg);}
+  board[tr][tc]=mp; board[fr][fc]=null;
+  const promoRow=mp.color==='w'?0:7;
+  if(mp.type==='P'&&tr===promoRow){const t=rand(['Q','R','B','N','K']);board[tr][tc]={...mp,type:t};log(T.promoMsg(PNAME[t]),'hell');setStatus(T.promoStatus(PNAME[t]));}
+  const movedColor=turn; lastMovedPieceId=mp.id;
+  pendingClockColor=movedColor; // keep ticking against the player who just moved
+  turn=turn==='w'?'b':'w'; selected=null; validMoves=[];
+  waitingForEndTurn=true;
+  setTimeout(()=>aiJudgeMove(fr,fc,tr,tc,movedColor),400);
+  setTimeout(()=>{if(waitingForEndTurn)setStatus('✋ Move made — press 🔁 End Turn to hand off.');},200);
+  checkWin(); triggerHellEvents(); renderAll();
+}
+
+function triggerHellEvents(){
+  if(moveCount-lastTunnel>5+~~(Math.random()*5)&&pick(0.38)){tunnelPiece();lastTunnel=moveCount;}
+  if(moveCount-lastSurge>8+~~(Math.random()*7)&&pick(0.28)){pawnSurge();lastSurge=moveCount;}
+  if(moveCount-lastRotate>16+~~(Math.random()*10)&&pick(0.22)){rotateBoard();lastRotate=moveCount;}
+  if(moveCount-lastDrift>4+~~(Math.random()*5)&&pick(0.32)){driftSquares();lastDrift=moveCount;}
+  if(moveCount-lastUnion>16+~~(Math.random()*12)&&pick(0.28)){triggerUnion();lastUnion=moveCount;}
+  if(moveCount-lastRevolt>12+~~(Math.random()*10)&&pick(0.25)){triggerRevolt();lastRevolt=moveCount;}
+  if(moveCount-lastRandPopup>4+~~(Math.random()*4)&&pick(0.55)){
+    const[title,msg]=rand(T.randomPopups);
+    setTimeout(()=>showPopup3(title,msg),350);
+    lastRandPopup=moveCount;
+  }
+}
+
+function tunnelPiece(){
+  const pieces=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]&&board[r][c].type!=='K')pieces.push({r,c});}
+  if(!pieces.length)return;
+  const{r,c}=rand(pieces);
+  const empties=[];for(let nr=0;nr<8;nr++)for(let nc=0;nc<8;nc++){if(!board[nr][nc])empties.push({r:nr,c:nc});}
+  if(!empties.length)return;
+  const{r:nr,c:nc}=rand(empties), p=board[r][c];
+  const fromEl=document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+  if(fromEl){const piece=fromEl.querySelector('.piece');if(piece)piece.classList.add('tunnel-out');}
+  flashBoard('rgba(100,0,255,0.25)');
+  showBanner('🌀 QUANTUM TUNNEL',`${GLYPH[p.color+p.type]} teleported to ${sq(nr,nc)}`);
+  setTimeout(()=>{
+    board[nr][nc]=p;board[r][c]=null;renderBoard();
+    const toEl=document.querySelector(`[data-r="${nr}"][data-c="${nc}"]`);
+    if(toEl){const piece=toEl.querySelector('.piece');if(piece)piece.classList.add('tunnel-in');}
+  },450);
+  log(T.tunnelMsg(GLYPH[p.color+p.type],sq(r,c),sq(nr,nc)),'hell');
+  setStatus(T.tunnelStatus(GLYPH[p.color+p.type]));
+}
+
+function pawnSurge(){
+  const color=rand(['w','b']),dir=color==='w'?-1:1, moves=[];
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]?.type==='P'&&board[r][c].color===color){const nr=r+dir;if(onBoard(nr,c)&&!board[nr][c])moves.push({fr:r,fc:c,tr:nr,tc:c});}}
+  if(!moves.length)return;
+  moves.forEach(({fr,fc})=>{const el=document.querySelector(`[data-r="${fr}"][data-c="${fc}"]`);if(el){const p=el.querySelector('.piece');if(p)p.classList.add('surge-flash');}});
+  flashBoard('rgba(60,255,80,0.2)'); showBanner('🚶 PAWN SURGE!',`${moves.length} pawns charging forward`);
+  setTimeout(()=>{moves.forEach(({fr,fc,tr,tc})=>{board[tr][tc]=board[fr][fc];board[fr][fc]=null;});renderBoard();log(T.pawnSurgeMsg(moves.length),'hell');setStatus(T.pawnSurgeStatus);},500);
+}
+
+function rotateBoard(){
+  boardRotated=!boardRotated; colorFlipped=!colorFlipped;
+  flashBoard('rgba(255,85,0,0.35)'); showBanner('🔄 BOARD ROTATION!','You are now playing the other color');
+  log(T.rotateMsg,'hell'); setStatus(T.rotateStatus); showPopup3(T.rotatePopupTitle,T.rotatePopupMsg);
+}
+
+function driftSquares(){
+  log(T.driftMsg,'hell'); setStatus(T.driftMsg); showBanner('Board instability!','Some squares are drifting...'); flashBoard('rgba(100,180,255,0.15)');
+  Array.from(document.querySelectorAll('.square')).sort(()=>Math.random()-0.5).slice(0,4).forEach((el,i)=>{
+    setTimeout(()=>{const dx=(Math.random()*28-14)+'px',dy=(Math.random()*28-14)+'px';el.classList.add('drifting-sq');el.style.transition='transform 1s ease';el.style.transform=`translate(${dx},${dy})`;setTimeout(()=>{el.style.transform='';el.classList.remove('drifting-sq');},1050);},i*120);
+  });
+}
+
+function triggerUnion(){
+  const cands=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=board[r][c];if(p&&(p.type==='R'||p.type==='P')&&!p.onStrike)cands.push({r,c});}
+  if(!cands.length)return;
+  const{r,c}=rand(cands),p=board[r][c];
+  p.onStrike=true;onStrikePieces.add(p.id);
+  const msg=rand(p.type==='R'?T.rookStrikeMessages:T.pawnStrikeMessages);
+  flashBoard('rgba(255,200,0,0.2)'); showBanner('🪧 STRIKE!',msg); log(msg,'hell'); setStatus(msg);
+  setTimeout(()=>{if(board[r][c]){board[r][c].onStrike=false;onStrikePieces.delete(board[r][c].id);}log(T.strikeEndMsg,'sys');setStatus(T.strikeEndMsg);renderAll();},12000+Math.random()*8000);
+}
+
+function triggerRevolt(){
+  const revoltColor=rand(['w','b']), cands=[];
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=board[r][c];if(p&&p.color===revoltColor&&p.type!=='K'&&!revoltPieces.has(p.id))cands.push({r,c,p});}
+  if(cands.length<1)return;
+  const count=Math.min(cands.length,1+~~(Math.random()*2));
+  const chosen=cands.sort(()=>Math.random()-0.5).slice(0,count);
+  chosen.forEach(({p})=>revoltPieces.add(p.id));
+  const colorName=revoltColor==='w'?'White':'Black';
+  const msg=rand([
+    `INTERNAL REVOLT! ${count} ${colorName} piece(s) have turned against their own side.`,
+    `Betrayal! ${count} ${colorName} piece(s) are now fighting for themselves.`,
+    `${count} ${colorName} piece(s) have gone rogue.`,
+  ]);
+  flashBoard('rgba(200,0,0,0.35)'); showBanner(T.revoltBanner,T.revoltBannerSub);
+  log(msg,'hell'); setStatus(msg); renderBoard();
+  setTimeout(()=>{chosen.forEach(({p})=>revoltPieces.delete(p.id));const revoltEndMsg='The revolt has ended. Pieces returned to their side (reluctantly).';log(revoltEndMsg,'sys');setStatus(revoltEndMsg);renderBoard();},18000+Math.random()*12000);
+  chosen.forEach(({r,c,p})=>{
+    setTimeout(()=>{
+      if(!revoltPieces.has(p.id))return;
+      let cr=-1,cc=-1;
+      for(let rr=0;rr<8;rr++)for(let cc2=0;cc2<8;cc2++){if(board[rr][cc2]?.id===p.id){cr=rr;cc=cc2;}}
+      if(cr===-1)return;
+      const targets=[];
+      for(let rr=0;rr<8;rr++)for(let cc2=0;cc2<8;cc2++){if(board[rr][cc2]&&board[rr][cc2].color===p.color&&board[rr][cc2].type!=='K'&&board[rr][cc2].id!==p.id)targets.push({r:rr,c:cc2});}
+      if(!targets.length)return;
+      const tgt=rand(targets),victim=board[tgt.r][tgt.c];
+      const ms=getMoves(cr,cc,false,true);
+      if(ms.some(m=>m.r===tgt.r&&m.c===tgt.c)){
+        const attackMsg=`⚔️ ${GLYPH[p.color+p.type]} attacks its own ${GLYPH[victim.color+victim.type]}! Traitorous.`;
+        log(attackMsg,'hell'); setStatus(attackMsg);
+        flashBoard('rgba(200,0,0,0.25)');
+        capturedPieces.push({...victim}); board[tgt.r][tgt.c]=p; board[cr][cc]=null;
+        scheduleRespawn(victim); renderBoard();
+      }
+    },4000+Math.random()*6000);
+  });
+}
+
+function triggerTimeout(winner,loser){
+  document.getElementById('winTitle').textContent=loser.toUpperCase()+' RAN OUT OF TIME!';
+  document.getElementById('winSubtitle').textContent=winner+' wins on time. Even in Hell, the clock is law.';
+  document.getElementById('winScreen').classList.add('active');
+  spawnConfetti();
+}
+
+function scheduleRespawn(p){
+  setTimeout(()=>{
+    const empties=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(!board[r][c])empties.push({r,c});}
+    if(!empties.length)return;
+    const{r,c}=rand(empties);
+    board[r][c]={...p,id:pieceId++,onStrike:false};
+    log(T.respawnMsg(GLYPH[p.color+p.type]),'hell');setStatus(T.respawnStatus);renderBoard();
+    flashSquare(r,c,'respawn-burst'); flashBoard('rgba(255,215,0,0.2)');
+    showBanner('Piece resurrected!',`${GLYPH[p.color+p.type]} returned from the dead at ${sq(r,c)}`);
+    const el=document.querySelector(`[data-r="${r}"][data-c="${c}"] .piece`);
+    if(el){el.classList.add('respawn-pop');setTimeout(()=>el.classList.remove('respawn-pop'),600);}
+  },8000+Math.random()*12000);
+}
+
+setInterval(()=>{
+  if(gameOver||moveCount<4)return;
+  if(pick(0.06)){
+    const pawns=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]?.type==='P')pawns.push({r,c});}
+    if(!pawns.length)return;
+    const{r,c}=rand(pawns),ms=getMoves(r,c);
+    if(ms.length){const m=rand(ms);log(T.panicMsg(sq(r,c),sq(m.r,m.c)),'hell');setStatus(T.panicStatus);board[m.r][m.c]=board[r][c];board[r][c]=null;renderBoard();renderSide();}
+  }
+},16000);
+
+function findKing(color){for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]?.type==='K'&&board[r][c].color===color)return true;}return false;}
+function checkWin(){
+  if(!findKing('b')){fakeThenRevert('White');return;}
+  if(!findKing('w')){fakeThenRevert('Black');return;}
+  if(!hasAnyMoves(turn)&&isInCheck(turn))fakeThenRevert(turn==='w'?'Black':'White');
+}
+
+function fakeThenRevert(winner){
+  document.getElementById('winTitle').textContent=T.winTitle(winner);
+  document.getElementById('winSubtitle').textContent=T.winSubtitle;
+  document.getElementById('winScreen').classList.add('active');
+  spawnConfetti(); log(T.winTitle(winner),'sys'); setStatus(T.winTitle(winner));
+  setTimeout(()=>{
+    document.getElementById('winScreen').classList.remove('active');
+    document.getElementById('waitNoTitle').textContent=T.waitNoTitle;
+    document.getElementById('waitNoSub').textContent=T.waitNoSub;
+    document.getElementById('waitNoScreen').classList.add('active');
+    setTimeout(()=>{
+      document.getElementById('waitNoScreen').classList.remove('active');
+      if(moveHistory.length){
+        const prev=moveHistory.pop();
+        board=prev.board;turn=prev.turn;capturedPieces=prev.capturedPieces;
+        moveCount=prev.moveCount;secretPawnRevealed=prev.secretPawnRevealed;
+        boardRotated=prev.boardRotated;colorFlipped=prev.colorFlipped;
+        document.getElementById('boardOuter').style.transform=boardRotated?'rotate(180deg)':'';
+      }
+      setStatus(T.afterWaitNo);log(T.afterWaitNoLog,'sys');renderAll();
+    },2200);
+  },3800);
+}
+
+function spawnConfetti(){
+  const a=document.getElementById('confettiArea');a.innerHTML='';
+  for(let i=0;i<90;i++){const d=document.createElement('div');d.className='conf-piece';d.style.cssText=`left:${Math.random()*100}%;width:${6+Math.random()*10}px;height:${6+Math.random()*10}px;background:${rand(CONF_COLORS)};animation-duration:${1.2+Math.random()*3}s;animation-delay:${Math.random()*1.8}s`;a.appendChild(d);}
+}
+
+function getHint(){
+  const all=[];
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    if(board[r][c]?.color===turn){
+      getMoves(r,c).forEach(m=>{
+        let score=0;
+        if(board[m.r][m.c])score-=10;
+        if(board[r][c].type==='K')score-=20;
+        const opp=turn==='w'?'b':'w';
+        for(let or=0;or<8;or++)for(let oc=0;oc<8;oc++){if(board[or][oc]?.color===opp&&getMoves(or,oc,true).some(om=>om.r===m.r&&om.c===m.c))score-=5;}
+        all.push({r,c,m,score});
+      });
+    }
+  }
+  if(!all.length){setStatus("No moves. Brilliant.");return;}
+  all.sort((a,b)=>a.score-b.score);
+  const w=all[0],p=board[w.r][w.c];
+  const type=(p.id===secretPawnId&&secretPawnRevealed)?secretPawnType:p.type;
+  const glyph=GLYPH[p.color+type],from=sq(w.r,w.c),to=sq(w.m.r,w.m.c);
+  const text=rand(T.hintTemplates).replace(/\{piece\}/g,glyph).replace(/\{from\}/g,from).replace(/\{to\}/g,to);
+  document.getElementById('hintMsg').textContent=text+' '+T.hintSuffix;
+  document.getElementById('hintPopup').classList.add('active');
+}
+
+function endTurn(){
+  if(gameOver)return;
+  if(!waitingForEndTurn){setStatus('Make a move first, dumbass.');return;}
+  waitingForEndTurn=false; pendingClockColor=null; startClock();
+  setStatus((activeTurn()==='w'?'White':'Black')+"'s turn.");
+  renderAll();
+}
+function dismissHandoff(){ document.getElementById('handoffScreen').classList.remove('active'); startClock(); renderAll(); }
+
+function showPopup1(){ document.getElementById('popup1Msg').textContent=rand(T.popup1Messages); document.getElementById('popup1').classList.add('active'); }
+function popup1Yes(){ document.getElementById('popup1').classList.remove('active'); document.getElementById('popup2Msg').textContent=rand(T.popup2Messages); document.getElementById('popup2').classList.add('active'); }
+function popup2Yes(){ document.getElementById('popup2').classList.remove('active'); if(pick(0.25)){document.getElementById('popup3').dataset.next='move';showPopup3(T.popup3FinalTitle,T.popup3FinalMsg);}else firePendingMove(); }
+function cancelPopup(){ ['popup1','popup2','popup3'].forEach(id=>document.getElementById(id).classList.remove('active')); pendingMove=null;selected=null;validMoves=[];renderBoard(); }
+function showPopup3(title,msg){ document.getElementById('popup3Title').textContent=title; document.getElementById('popup3Msg').textContent=msg; document.getElementById('popup3').classList.add('active'); }
+function closePopup3(){ const p3=document.getElementById('popup3');p3.classList.remove('active');if(p3.dataset.next==='move'){p3.dataset.next='';firePendingMove();} }
+function firePendingMove(){ if(pendingMove){const{fr,fc,tr,tc}=pendingMove;pendingMove=null;doMove(fr,fc,tr,tc);} }
+
+function flashBoard(color){ const el=document.getElementById('eventFlash');el.style.background=color;el.classList.remove('active');void el.offsetWidth;el.classList.add('active');setTimeout(()=>el.classList.remove('active'),750); }
+function showBanner(text,sub='',duration=2200){ const b=document.getElementById('eventBanner');document.getElementById('eventBannerText').textContent=text;document.getElementById('eventBannerSub').textContent=sub;b.classList.add('show');setTimeout(()=>b.classList.remove('show'),duration); }
+function flashSquare(r,c,cssClass,delay=0){ setTimeout(()=>{ const el=document.querySelector(`[data-r="${r}"][data-c="${c}"]`);if(!el)return;el.classList.add(cssClass);setTimeout(()=>el.classList.remove(cssClass),1300); },delay); }
+
+function showSecretStartToast(typeName,col){
+  const colName=String.fromCharCode(97+col).toUpperCase();
+  const d=document.createElement('div');d.className='secret-toast';d.style.fontSize='14px';d.style.maxWidth='380px';d.style.lineHeight='1.7';
+  d.innerHTML=`🕵️ <strong>PSST — WHITE ONLY</strong><br>Your pawn on <strong>${colName}2</strong> is secretly a <strong>${typeName}</strong>.<br><span style="font-size:11px;color:#aa77ff">It still looks like a pawn.</span>`;
+  document.body.appendChild(d); setTimeout(()=>d.remove(),6000);
+}
+function showSecretToast(typeName){
+  const d=document.createElement('div');d.className='secret-toast';d.innerHTML=T.secretToastHTML(typeName);
+  document.body.appendChild(d); setTimeout(()=>d.remove(),4100);
+}
+
+function resignGame(){ stopClock(); showPopup3(T.resignPopupTitle,T.resignPopupMsg); setTimeout(()=>startNewGame(),3200); }
+function setStatus(msg){ document.getElementById('statusBar').textContent=msg; }
+function log(msg,type='move'){ const el=document.getElementById('log');const d=document.createElement('div');d.className='entry '+type;d.textContent='▸ '+msg;el.appendChild(d);el.scrollTop=el.scrollHeight; }
+
+document.getElementById('gameTitle').textContent=T.gameTitle;
+</script>
+</body>
+</html>
