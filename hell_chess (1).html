@@ -356,7 +356,7 @@
 
 <script>
 // ════════════════════════════════════════════════════════════════
-//  ✏️  CUSTOMIZE_TEXT — edit anything here to change game text
+//  TEXT_START
 // ════════════════════════════════════════════════════════════════
 const T = {
   gameTitle: "Hell Chess",
@@ -434,7 +434,7 @@ const T = {
   ],
   strikeEndMsg: "Strike ended. Piece returned to work (grudgingly).",
 
-  respawnMsg:    (piece) => `Undead ${piece} respawned on the board!`,
+  respawnMsg:    (piece) => `Undead ${piece} resurrected on the board!`,
   respawnStatus: "A captured piece just… came back.",
 
   panicMsg:    (from, to) => `A pawn panicked and moved itself! ${from}→${to}`,
@@ -482,7 +482,7 @@ const T = {
   gameStartLog: "Game started. Lower your hopes.",
 };
 // ════════════════════════════════════════════════════════════════
-//  END CUSTOMIZE_TEXT
+//  TEXT_END
 // ════════════════════════════════════════════════════════════════
 
 const GLYPH = { wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙', bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟' };
@@ -656,7 +656,7 @@ function activeTurn(){ return colorFlipped?(turn==='w'?'b':'w'):turn; }
 
 function handleClick(r,c){
   if(gameOver)return;
-  if(waitingForEndTurn){setStatus('Press 🔁 End Turn to pass to the next player.');return;}
+  if(waitingForEndTurn){setStatus('Press End Turn to pass to the next player.');return;}
   const p=board[r][c], active=activeTurn();
   if(selected){
     const mp=board[selected.r][selected.c];
@@ -720,7 +720,7 @@ function doMove(fr,fc,tr,tc){
   if(moveHistory.length>25)moveHistory.shift();
   const mp=board[fr][fc],tp=board[tr][tc];
   if(mp.id===secretPawnId&&!secretPawnRevealed){secretPawnRevealed=true;showSecretToast(PNAME[secretPawnType]);log(T.secretLogMsg(PNAME[secretPawnType]),'hell');}
-  if(tp){capturedPieces.push({...tp});scheduleRespawn(tp);log(`💀 ${GLYPH[tp.color+tp.type]} captured!`,'hell');}
+  if(tp){capturedPieces.push({...tp});scheduleRespawn(tp);log(`${GLYPH[tp.color+tp.type]} captured!`,'hell');}
   board[tr][tc]=mp; board[fr][fc]=null;
   const promoRow=mp.color==='w'?0:7;
   if(mp.type==='P'&&tr===promoRow){const t=rand(['Q','R','B','N','K']);board[tr][tc]={...mp,type:t};log(T.promoMsg(PNAME[t]),'hell');setStatus(T.promoStatus(PNAME[t]));}
@@ -773,7 +773,7 @@ function pawnSurge(){
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]?.type==='P'&&board[r][c].color===color){const nr=r+dir;if(onBoard(nr,c)&&!board[nr][c])moves.push({fr:r,fc:c,tr:nr,tc:c});}}
   if(!moves.length)return;
   moves.forEach(({fr,fc})=>{const el=document.querySelector(`[data-r="${fr}"][data-c="${fc}"]`);if(el){const p=el.querySelector('.piece');if(p)p.classList.add('surge-flash');}});
-  flashBoard('rgba(60,255,80,0.2)'); showBanner('🚶 PAWN SURGE!',`${moves.length} pawns charging forward`);
+  flashBoard('rgba(60,255,80,0.2)'); showBanner('Pawn surge!',`${moves.length} pawns charging forward`);
   setTimeout(()=>{moves.forEach(({fr,fc,tr,tc})=>{board[tr][tc]=board[fr][fc];board[fr][fc]=null;});renderBoard();log(T.pawnSurgeMsg(moves.length),'hell');setStatus(T.pawnSurgeStatus);},500);
 }
 
@@ -784,7 +784,7 @@ function rotateBoard(){
 }
 
 function driftSquares(){
-  log(T.driftMsg,'hell'); showBanner('🟦 BOARD INSTABILITY','Some squares are drifting...'); flashBoard('rgba(100,180,255,0.15)');
+  log(T.driftMsg,'hell'); showBanner('Board instability!','Some squares are drifting...'); flashBoard('rgba(100,180,255,0.15)');
   Array.from(document.querySelectorAll('.square')).sort(()=>Math.random()-0.5).slice(0,4).forEach((el,i)=>{
     setTimeout(()=>{const dx=(Math.random()*28-14)+'px',dy=(Math.random()*28-14)+'px';el.classList.add('drifting-sq');el.style.transition='transform 1s ease';el.style.transform=`translate(${dx},${dy})`;setTimeout(()=>{el.style.transform='';el.classList.remove('drifting-sq');},1050);},i*120);
   });
@@ -809,9 +809,9 @@ function triggerRevolt(){
   chosen.forEach(({p})=>revoltPieces.add(p.id));
   const colorName=revoltColor==='w'?'White':'Black';
   const msg=rand([
-    `INTERNAL REVOLT! ${count} ${colorName} piece(s) have turned against their own side!`,
-    `Betrayal! ${count} ${colorName} piece(s) are now fighting for themselves!`,
-    `${count} ${colorName} piece(s) have gone rogue — friendly fire is ON!`,
+    `INTERNAL REVOLT! ${count} ${colorName} piece(s) have turned against their own side.`,
+    `Betrayal! ${count} ${colorName} piece(s) are now fighting for themselves.`,
+    `${count} ${colorName} piece(s) have gone rogue.`,
   ]);
   flashBoard('rgba(200,0,0,0.35)'); showBanner(T.revoltBanner,T.revoltBannerSub);
   log(msg,'hell'); setStatus(msg); renderBoard();
@@ -828,7 +828,7 @@ function triggerRevolt(){
       const tgt=rand(targets),victim=board[tgt.r][tgt.c];
       const ms=getMoves(cr,cc,false,true);
       if(ms.some(m=>m.r===tgt.r&&m.c===tgt.c)){
-        log(`⚔️ ${GLYPH[p.color+p.type]} attacks its own ${GLYPH[victim.color+victim.type]}! Traitor!`,'hell');
+        log(`⚔️ ${GLYPH[p.color+p.type]} attacks its own ${GLYPH[victim.color+victim.type]}! Traitorous.`,'hell');
         flashBoard('rgba(200,0,0,0.25)');
         capturedPieces.push({...victim}); board[tgt.r][tgt.c]=p; board[cr][cc]=null;
         scheduleRespawn(victim); renderBoard();
@@ -838,7 +838,7 @@ function triggerRevolt(){
 }
 
 function triggerTimeout(winner,loser){
-  document.getElementById('winTitle').textContent='⏰ '+loser.toUpperCase()+' RAN OUT OF TIME!';
+  document.getElementById('winTitle').textContent=loser.toUpperCase()+' RAN OUT OF TIME!';
   document.getElementById('winSubtitle').textContent=winner+' wins on time. Even in Hell, the clock is law.';
   document.getElementById('winScreen').classList.add('active');
   spawnConfetti();
@@ -852,7 +852,7 @@ function scheduleRespawn(p){
     board[r][c]={...p,id:pieceId++,onStrike:false};
     log(T.respawnMsg(GLYPH[p.color+p.type]),'hell');setStatus(T.respawnStatus);renderBoard();
     flashSquare(r,c,'respawn-burst'); flashBoard('rgba(255,215,0,0.2)');
-    showBanner('👻 PIECE RESPAWNED!',`${GLYPH[p.color+p.type]} returned from the dead at ${sq(r,c)}`);
+    showBanner('Piece resurrected!',`${GLYPH[p.color+p.type]} returned from the dead at ${sq(r,c)}`);
     const el=document.querySelector(`[data-r="${r}"][data-c="${c}"] .piece`);
     if(el){el.classList.add('respawn-pop');setTimeout(()=>el.classList.remove('respawn-pop'),600);}
   },8000+Math.random()*12000);
@@ -930,7 +930,7 @@ function getHint(){
 
 function endTurn(){
   if(gameOver)return;
-  if(!waitingForEndTurn){setStatus('Make a move first.');return;}
+  if(!waitingForEndTurn){setStatus('Make a move first, dumbass.');return;}
   waitingForEndTurn=false; startClock();
   setStatus((activeTurn()==='w'?'White':'Black')+"'s turn.");
   renderAll();
