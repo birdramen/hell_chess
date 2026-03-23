@@ -2,7 +2,7 @@
 self-explanatory.
 
 rules of hell chess:
-- game starts with a bag of 32 random chess pieces. players draw from bag. you play what you get. 4 queens? congrats! no queens? good luck.
+- your minor/major pieces are randomized. you play what you get. 4 queens? congrats! no queens? good luck.
 - random triggered events:
     - pieces may quantum tunnel to any location on the board. you cannot stop this
     - all eligible pawns may advance simultaneously for one player. you cannot stop this
