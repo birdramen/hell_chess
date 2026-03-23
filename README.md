@@ -23,3 +23,5 @@ rules of hell chess:
 - accelerated global warming has unfortunately resulted in randomly timed Ice Ages. you will not be able to move your pieces until they thaw.
 - all you see is not all there is! the board is infinite. pieces from the D500s may choose to pay you a visit.
 - love is in the air! if any two kings from opposing sides get within three squares of each other, they embark on a sensual gay romance and the game automatically ends in a draw.
+- both players have a single-use doomsday button. press at your own discretion.
+- there is a 4% chance your game will turn into checkers. this is irreversible.
