@@ -360,7 +360,7 @@
 
 <script>
 // ════════════════════════════════════════════════════════════════
-//  ✏️  CUSTOMIZE_TEXT — edit anything here to change game text
+//  TEXT
 // ════════════════════════════════════════════════════════════════
 const T = {
   gameTitle: "Hell Chess",
@@ -789,7 +789,7 @@ function tunnelPiece(){
   const fromEl=document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
   if(fromEl){const piece=fromEl.querySelector('.piece');if(piece)piece.classList.add('tunnel-out');}
   flashBoard('rgba(100,0,255,0.25)');
-  showBanner('🌀 QUANTUM TUNNEL',`${GLYPH[p.color+p.type]} teleported to ${sq(nr,nc)}`);
+  showBanner('Quantum tunnel!',`${GLYPH[p.color+p.type]} teleported to ${sq(nr,nc)}`);
   setTimeout(()=>{
     board[nr][nc]=p;board[r][c]=null;renderBoard();
     const toEl=document.querySelector(`[data-r="${nr}"][data-c="${nc}"]`);
@@ -882,7 +882,7 @@ function triggerTimeout(winner,loser){
   // Show win screen briefly, then revert — time doesn't work in Hell
   gameOver=false; // un-end the game so clocks go negative
   document.getElementById('winTitle').textContent=loser.toUpperCase()+' RAN OUT OF TIME!';
-  document.getElementById('winSubtitle').textContent=winner+' wins on time... or do they?';
+  document.getElementById('winSubtitle').textContent=winner+' wins on time... right?';
   document.getElementById('winScreen').classList.add('active');
   spawnConfetti();
   setTimeout(()=>{
@@ -892,8 +892,8 @@ function triggerTimeout(winner,loser){
     document.getElementById('waitNoScreen').classList.add('active');
     setTimeout(()=>{
       document.getElementById('waitNoScreen').classList.remove('active');
-      setStatus('Time ran out — but time is meaningless here. Clocks go negative.');
-      log('⏰ Time expired. The clocks go negative. The game continues.','hell');
+      setStatus('Time ran out. But time is meaningless here. Clocks go negative.');
+      log('Time expired. The clocks go negative. The game continues.','hell');
       // restart clock — now counts negative
       startClock();
     },2000);
@@ -906,9 +906,9 @@ function triggerInvincible(){
   if(!all.length)return;
   const{r,c}=rand(all);const p=board[r][c];
   invinciblePieces.add(p.id);
-  const msg=`✨ ${GLYPH[p.color+p.type]} is now INVINCIBLE and cannot be captured!`;
+  const msg=`${GLYPH[p.color+p.type]} is now INVINCIBLE and cannot be captured.`;
   log(msg,'hell');setStatus(msg);flashBoard('rgba(255,215,0,0.35)');
-  showBanner('✨ INVINCIBLE!',`${GLYPH[p.color+p.type]} cannot be taken`);
+  showBanner('INVINCIBLE!',`${GLYPH[p.color+p.type]} cannot be taken`);
   renderBoard();
   const duration=15000+Math.random()*15000;
   setTimeout(()=>{
@@ -924,9 +924,9 @@ function triggerIceAge(){
   const colorName=frozenColor==='w'?'White':'Black';
   const duration=12000+Math.random()*10000;
   frozenUntil=Date.now()+duration;
-  const msg=`❄️ ICE AGE! ${colorName}'s pieces are frozen solid and cannot move!`;
+  const msg=`Due to accelerated global warming, a little ice age has arrived. ${colorName}'s pieces are frozen solid and cannot move.`;
   log(msg,'hell');setStatus(msg);flashBoard('rgba(150,220,255,0.4)');
-  showBanner('❄️ ICE AGE!',`${colorName} cannot move their pieces`);
+  showBanner('Little ice age!',`${colorName} cannot move their pieces`);
   renderBoard();
   setTimeout(()=>{
     frozenColor=null;
@@ -945,7 +945,7 @@ function triggerAirstrike(){
   if(!targets.length)return;
   const{r:tr,c:tc}=rand(targets);
   const victim=board[tr][tc];
-  showBanner('🟢 AIRSTRIKE INCOMING!',`Bishop diving toward ${sq(tr,tc)}`);
+  showBanner('Israeli airstike incoming!',`Bishop diving toward ${sq(tr,tc)}`);
   flashBoard('rgba(0,255,68,0.3)');
   // Animate: create a flying green bishop overlay
   const boardRect=document.getElementById('boardOuter').getBoundingClientRect();
