@@ -672,7 +672,7 @@ function handleClick(r,c){
   if(gameOver)return;
   // Ice age — frozen color cannot move
   if(frozenColor&&activeTurn()===frozenColor){
-    setStatus('❄️ Your pieces are frozen! You cannot move.');return;
+    setStatus('Your pieces are frozen! You cannot move.');return;
   }
   const p=board[r][c], active=activeTurn();
   if(selected){
@@ -810,7 +810,7 @@ function pawnSurge(){
 
 function rotateBoard(){
   boardRotated=!boardRotated; colorFlipped=!colorFlipped;
-  flashBoard('rgba(255,85,0,0.35)'); showBanner('🔄 BOARD ROTATION!','You are now playing the other color');
+  flashBoard('rgba(255,85,0,0.35)'); showBanner('Board rotation!','You are now playing the other color');
   log(T.rotateMsg,'hell'); setStatus(T.rotateStatus); showPopup3(T.rotatePopupTitle,T.rotatePopupMsg);
 }
 
@@ -827,7 +827,7 @@ function triggerUnion(){
   const{r,c}=rand(cands),p=board[r][c];
   p.onStrike=true;onStrikePieces.add(p.id);
   const msg=rand(p.type==='R'?T.rookStrikeMessages:T.pawnStrikeMessages);
-  flashBoard('rgba(255,200,0,0.2)'); showBanner('🪧 STRIKE!',msg); log(msg,'hell'); setStatus(msg);
+  flashBoard('rgba(255,200,0,0.2)'); showBanner('Strike!',msg); log(msg,'hell'); setStatus(msg);
   setTimeout(()=>{if(board[r][c]){board[r][c].onStrike=false;onStrikePieces.delete(board[r][c].id);}log(T.strikeEndMsg,'sys');setStatus(T.strikeEndMsg);renderAll();},12000+Math.random()*8000);
 }
 
@@ -1013,12 +1013,12 @@ function checkKingProximity(){
   const dist=Math.max(Math.abs(wKr-bKr),Math.abs(wKc-bKc));
   if(dist<=3){
     // They're in love. Game is a draw.
-    const msg='👑🌈👑 The kings have fallen for each other. It is a draw.';
+    const msg='The kings have fallen for each other. It is a draw.';
     log(msg,'sys');setStatus(msg);
     flashBoard('rgba(255,100,200,0.5)');
-    showBanner('👑🌈 LOVE DRAW!','The kings are too close. It ends here.');
-    document.getElementById('winTitle').textContent='👑🌈 IT IS A DRAW 🌈👑';
-    document.getElementById('winSubtitle').textContent='The kings fell in love. No one wins. Everyone wins.';
+    showBanner('Love conquers all!','The kings are too close. They have eloped. It ends here.');
+    document.getElementById('winTitle').textContent='Draw!';
+    document.getElementById('winSubtitle').textContent='Your respective kings fell in love. No one wins. Everyone wins.';
     setTimeout(()=>{
       document.getElementById('winScreen').classList.add('active');
       spawnConfetti();
