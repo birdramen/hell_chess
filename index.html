@@ -1167,7 +1167,7 @@ function triggerArrival(){
 function showDoomConfirm(){
   if(gameOver)return;
   const who=activeTurn()==='w'?'White':'Black';
-  if(doomUsed[activeTurn()]){setStatus('You already used your Doomsday.');return;}
+  if(doomUsed[activeTurn()]){setStatus('You already used your Doomsday. Glutton.');return;}
   document.getElementById('doomWhoMsg').textContent=
     who+': are you sure? The board will be destroyed. This cannot be undone.';
   document.getElementById('doomConfirm').classList.add('active');
@@ -1224,7 +1224,7 @@ function triggerDoomsday(){
 
   setTimeout(()=>{
     const winner=(who==='w'?'White':'Black');
-    document.getElementById('winTitle').textContent='Doomsday';
+    document.getElementById('winTitle').textContent='Doomsday!';
     document.getElementById('winSubtitle').textContent=winner+' pressed the button. The game is over. Everything is over.';
     document.getElementById('winScreen').classList.add('active');
     spawnConfetti();
@@ -1242,7 +1242,7 @@ function triggerCheckers(){
   // Kings (K and Q pieces) can move both directions.
 
   flashBoard('rgba(180,120,40,0.5)');
-  showBanner('Checkers takeover!','The game has converted to checkers');
+  showBanner("Hope you weren't too attached!','The game has converted to checkers");
   log('The board has spontaneously converted to checkers. Pieces are now discs.','hell');
   setStatus('The game is now checkers. Pieces move diagonally. Kings move both ways.');
   renderBoard();
