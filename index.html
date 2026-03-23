@@ -667,7 +667,7 @@ function handleClick(r,c){
     const isValid=validMoves.some(m=>m.r===r&&m.c===c);
     if(isValid){
       if(mp.onStrike){setStatus(`${GLYPH[mp.color+mp.type]} refuses! (On strike)`);selected=null;validMoves=[];renderBoard();return;}
-      if(pick(0.30)){pendingMove={fr:selected.r,fc:selected.c,tr:r,tc:c};showPopup1();return;}
+      if(pick(0.10)){pendingMove={fr:selected.r,fc:selected.c,tr:r,tc:c};showPopup1();return;}
       doMove(selected.r,selected.c,r,c);
     } else if(p&&p.color===active){
       selectPiece(r,c);
@@ -747,7 +747,7 @@ function triggerHellEvents(){
   if(moveCount-lastDrift>4+~~(Math.random()*5)&&pick(0.32)){driftSquares();lastDrift=moveCount;}
   if(moveCount-lastUnion>16+~~(Math.random()*12)&&pick(0.28)){triggerUnion();lastUnion=moveCount;}
   if(moveCount-lastRevolt>12+~~(Math.random()*10)&&pick(0.25)){triggerRevolt();lastRevolt=moveCount;}
-  if(moveCount-lastRandPopup>4+~~(Math.random()*4)&&pick(0.55)){
+  if(moveCount-lastRandPopup>9+~~(Math.random()*4)&&pick(0.25)){
     const[title,msg]=rand(T.randomPopups);
     setTimeout(()=>showPopup3(title,msg),350);
     lastRandPopup=moveCount;
