@@ -340,7 +340,7 @@
   <h2 id="handoffTitle">Pass the Device</h2>
   <div id="handoffPlayerLabel"></div>
   <p id="handoffSub"></p>
-  <button class="popup-btn" style="font-size:1rem;padding:12px 32px;margin-top:8px;" onclick="dismissHandoff()">I'm ready — show the board</button>
+  <button class="popup-btn" style="font-size:1rem;padding:12px 32px;margin-top:8px;" onclick="dismissHandoff()">Reveal the board</button>
 </div>
 
 <!-- TIME SELECT -->
@@ -804,7 +804,7 @@ function pawnSurge(){
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){if(board[r][c]?.type==='P'&&board[r][c].color===color){const nr=r+dir;if(onBoard(nr,c)&&!board[nr][c])moves.push({fr:r,fc:c,tr:nr,tc:c});}}
   if(!moves.length)return;
   moves.forEach(({fr,fc})=>{const el=document.querySelector(`[data-r="${fr}"][data-c="${fc}"]`);if(el){const p=el.querySelector('.piece');if(p)p.classList.add('surge-flash');}});
-  flashBoard('rgba(60,255,80,0.2)'); showBanner('🚶 PAWN SURGE!',`${moves.length} pawns charging forward`);
+  flashBoard('rgba(60,255,80,0.2)'); showBanner('Pawn surge!',`${moves.length} pawns charging forward`);
   setTimeout(()=>{moves.forEach(({fr,fc,tr,tc})=>{board[tr][tc]=board[fr][fc];board[fr][fc]=null;});renderBoard();log(T.pawnSurgeMsg(moves.length),'hell');setStatus(T.pawnSurgeStatus);},500);
 }
 
@@ -1152,7 +1152,7 @@ function flashSquare(r,c,cssClass,delay=0){ setTimeout(()=>{ const el=document.q
 function showSecretStartToast(typeName,col){
   const colName=String.fromCharCode(97+col).toUpperCase();
   const d=document.createElement('div');d.className='secret-toast';d.style.fontSize='14px';d.style.maxWidth='380px';d.style.lineHeight='1.7';
-  d.innerHTML=`🕵️ <strong>PSST — WHITE ONLY</strong><br>Your pawn on <strong>${colName}2</strong> is secretly a <strong>${typeName}</strong>.<br><span style="font-size:11px;color:#aa77ff">It still looks like a pawn.</span>`;
+  d.innerHTML=`<strong>PSST (WHITE ONLY):</strong><br>Your pawn on <strong>${colName}2</strong> is secretly a <strong>${typeName}</strong>.<br><span style="font-size:11px;color:#aa77ff">It still looks like a pawn.</span>`;
   document.body.appendChild(d); setTimeout(()=>d.remove(),6000);
 }
 function showSecretToast(typeName){
