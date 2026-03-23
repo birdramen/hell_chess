@@ -8,8 +8,8 @@ rules of hell chess:
     - all of white or black's eligible pawns advance by one square in unison. you cannot stop this
     - board flips by 180 degrees, and you must now control the other side. you cannot stop this.
     - captured pieces resurrect after a delay. you cannot stop this.
-    - occasionally, your own pieces will revolt and turn on each other. beware. there's no telling when the mutiny will end. you cannot stop this
-    - select pieces become invincible to all attacks. guess whether you can stop this.
+    - occasionally, your own pieces will revolt and turn on each other. beware. there's no telling when the mutiny will end. you cannot stop this.
+    - select pieces become invincible to all attacks. guess whether or not you can stop this. guess.
 - one pawn secretly behaves like a knight, bishop, rook, or queen. this is revealed on the first move. it will serve you well to remember which one.
 - pawns reaching rank 8 are promoted to a random piece. this could be a rook. it could be a queen. it could be a king. deal with it.
 - pop-ups… question your certainty.
