@@ -672,7 +672,7 @@ function handleClick(r,c){
   if(gameOver)return;
   // Ice age — frozen color cannot move
   if(frozenColor&&activeTurn()===frozenColor){
-    setStatus('Your pieces are frozen! You cannot move.');return;
+    setStatus("Ice age! Your pieces are frozen! You cannot move. Should've used less fossil fuels, huh?");return;
   }
   const p=board[r][c], active=activeTurn();
   if(selected){
@@ -930,7 +930,7 @@ function triggerIceAge(){
   renderBoard();
   setTimeout(()=>{
     frozenColor=null;
-    const thawMsg='🌊 The Ice Age has ended. Pieces thaw.';
+    const thawMsg='The Ice Age has ended. Pieces thaw.';
     log(thawMsg,'sys');setStatus(thawMsg);renderBoard();
   },duration);
 }
@@ -991,7 +991,7 @@ function scheduleForfeit(){
     const colorName=targetColor==='w'?'White':'Black';
     const msg=`⏳ ${colorName} took too long! Turn forfeited.`;
     log(msg,'hell');setStatus(msg);flashBoard('rgba(255,100,0,0.4)');
-    showBanner('⏳ TOO SLOW!',`${colorName}'s turn forfeited`);
+    showBanner('Too slow!',`${colorName}'s turn forfeited`);
     // Force turn switch
     turn=turn==='w'?'b':'w';
     selected=null;validMoves=[];
