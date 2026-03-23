@@ -15,4 +15,5 @@ rules of hell chess:
 - hints will, without fail, select the worst possible move available to you. 
 - pieces have the capacity to develop self-awareness. sometimes they panic-move. sometimes they unionize and strike because you've been paying them hardly livable wages. you will now know this has happened until they choose to politely inform you. 
 - when a player checkmates, the board freezes and resets by one move. 
-- the leaderboard blatantly lies to you. 
+- the leaderboard blatantly lies to you.
+- if you make a move I don't like, your clock loses a certain number of seconds based on the severity of your transgression. 
