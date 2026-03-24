@@ -489,7 +489,7 @@
       <button class="btn" onclick="resignGame()">🏳️ Resign</button>
       <button class="btn" onclick="startNewGame()">🔄 New Game</button>
       <button class="btn doomsday-btn" onclick="showDoomConfirm()">☢️ Doomsday</button>
-      <button class="btn rage-btn" onclick="rageQuit()">😤 Rage Quit</button>
+      <button class="btn rage-btn" onclick="rageQuit()">🚫 Rage Quit</button>
     </div>
   </div>
 
@@ -1432,7 +1432,7 @@ function triggerCheckers(){
   // Kings (K and Q pieces) can move both directions.
 
   flashBoard('rgba(180,120,40,0.5)');
-  showBanner('Checkers takeover!','The game has converted to checkers');
+  showBanner("Hope you weren't too attached!','The game has converted to checkers");
   log('The board has spontaneously converted to checkers. Pieces are now discs.','hell');
   setStatus('The game is now checkers. Pieces move diagonally. Kings move both ways.');
   renderBoard();
@@ -1483,12 +1483,12 @@ function toggleFog(){
   fogEnabled=!fogEnabled;
   updateFogToggle();
   renderBoard();
-  setStatus(fogEnabled?'Fog of war enabled. You can only see nearby squares.':'Fog of war disabled.');
+  setStatus(fogEnabled?'You are mired in the fog of war. You can only see nearby squares.':'Fog of war disabled.');
 }
 function randomFogToggle(){
   fogEnabled=!fogEnabled;
   updateFogToggle();
-  const msg=fogEnabled?'Fog of war descends! Visibility limited to 2 squares.':'The fog lifts. You can see again.';
+  const msg=fogEnabled?'The fog of war descends. Visibility limited to 2 squares.':'The fog lifts. You can see again.';
   log(msg,'hell'); setStatus(msg);
   flashBoard(fogEnabled?'rgba(50,50,80,0.5)':'rgba(200,200,255,0.3)');
   showBanner(fogEnabled?'Fog of war!':'Fog lifted!', fogEnabled?'Visibility: 2 squares':'Full board visible');
@@ -1502,7 +1502,7 @@ function randomFogToggle(){
 function updateFogToggle(){
   const btn=document.getElementById('fogToggle');
   if(!btn)return;
-  btn.textContent='🌫️ Fog of War: '+(fogEnabled?'On':'Off');
+  btn.textContent='Fog of War: '+(fogEnabled?'On':'Off');
   btn.classList.toggle('active',fogEnabled);
 }
 function isVisible(r,c,color){
@@ -1521,10 +1521,10 @@ function triggerGravityShift(){
   const dirs=['down','up','normal'];
   gravityDir=rand(dirs.filter(d=>d!==gravityDir));
   const dirNames={up:'upward (reversed!)',down:'downward (reversed!)',normal:'normal'};
-  const msg=`Gravity shift! Pawns now move ${dirNames[gravityDir]}.`;
+  const msg=`Interruption in the gravitational field. Pawns now move ${dirNames[gravityDir]}.`;
   log(msg,'hell'); setStatus(msg);
   flashBoard('rgba(255,165,0,0.4)');
-  showBanner('Gravity shift!',`Pawns now move ${dirNames[gravityDir]}`);
+  showBanner('Interruption in the gravitational field.',`Pawns now move ${dirNames[gravityDir]}`);
   renderBoard();
   setTimeout(()=>{
     gravityDir='normal';
@@ -1573,7 +1573,7 @@ function triggerMerger(){
   const msg=`${GLYPH[p.color+p.type]} + ${GLYPH[q.color+q.type]} merged into a ${PNAME[merged]}!`;
   log(msg,'hell'); setStatus(msg);
   flashBoard('rgba(255,255,100,0.5)');
-  showBanner('Piece merger!',`New ${PNAME[merged]} created`);
+  showBanner('Multinational piece merger!',`New ${PNAME[merged]} created`);
   renderBoard(); // rebuild DOM first
   // Flash the merged piece AFTER renderBoard
   setTimeout(()=>{
@@ -1601,9 +1601,9 @@ function triggerEarthquake(){
   const moves=5+~~(Math.random()*5);
   chosen.forEach(({r,c})=>rubbleSquares.set(r+','+c, moves));
   flashBoard('rgba(160,100,20,0.5)');
-  showBanner('Earthquake!',`${count} squares became rubble`);
-  log(`Earthquake! ${count} squares are now impassable rubble for ~${moves} moves.`,'hell');
-  setStatus(`Earthquake! ${count} squares blocked by rubble.`);
+  showBanner('Category 5 earthquake.',`${count} squares became rubble`);
+  log(`Category 5 earthquake! ${count} squares are now impassable rubble for ~${moves} moves.`,'hell');
+  setStatus(`Category 5 earthquake! ${count} squares blocked by rubble.`);
   renderBoard();
 }
 function tickRubble(){
@@ -1630,7 +1630,7 @@ function triggerBlackHole(){
   }
   if(!empties.length)return;
   blackHole=rand(empties);
-  const msg=`A black hole opened at ${sq(blackHole.r,blackHole.c)}! Adjacent pieces will be destroyed.`;
+  const msg=`A black hole opened at ${sq(blackHole.r,blackHole.c)}! Adjacent pieces will be demolished.`;
   log(msg,'hell'); setStatus(msg);
   flashBoard('rgba(0,0,0,0.8)');
   showBanner('Black hole!',`Opened at ${sq(blackHole.r,blackHole.c)}`);
@@ -1665,7 +1665,7 @@ function tickBlackHole(){
   // Destroy adjacent pieces first
   toDestroy.forEach(({rr,cc,p})=>{
     if(!board[rr][cc])return; // already gone
-    const msg=`${GLYPH[p.color+p.type]} sucked into the black hole!`;
+    const msg=`${GLYPH[p.color+p.type]} sucked into the black hole. Au revoir!`;
     log(msg,'hell'); setStatus(msg);
     capturedPieces.push({...p});
     killCount[p.color==='w'?'b':'w']++;
@@ -1730,7 +1730,7 @@ function triggerLightning(){
 
   setTimeout(()=>{
     if(board[r][c]?.id===victim.id){
-      const msg=`${GLYPH[victim.color+victim.type]} obliterated by lightning!`;
+      const msg=`${GLYPH[victim.color+victim.type]} annihilated by lightning! What are the odds?!`;
       setStatus(msg);
       capturedPieces.push({...victim});
       scheduleRespawn(victim);
@@ -1742,21 +1742,21 @@ function triggerLightning(){
 
 // ── Rage quit ─────────────────────────────────────────────────────
 const RAGE_INSULTS=[
-  "Oh you rage quitting? Bold move from someone who's down material.",
-  "Rage quit noted. Your opponent got +30 seconds and a free point.",
-  "Incredible. Truly a tactical decision.",
+  "Quitting so soon? I expected nothing more.",
+  "Pussy. Your opponent receives +30 seconds and a free point.",
+  "Incredible. A truly tactical decision.",
   "The board is still here. Your dignity is not.",
   "Opponent's clock +30s. Cope.",
-  "You raged. Nothing happened. The game continues. Life is like that.",
+  "You quit. Nothing happened. The game continues. Life is like that.",
 ];
 function rageQuit(){
   if(gameOver)return;
   const who=activeTurn()==='w'?'White':'Black';
   const insult=rand(RAGE_INSULTS);
-  log(`${who} rage quit (but the game goes on): ${insult}`,'hell');
+  log(`${who} rage quit (to no avail): ${insult}`,'hell');
   setStatus(insult);
   flashBoard('rgba(255,50,50,0.4)');
-  showBanner('Rage quit!',who+' raged. +30s to opponent.');
+  showBanner('Rage quit!',who+' gave up. +30s to opponent.');
   // Give opponent +30s
   if(activeTurn()==='w') clockB=Math.min(clockB+30,(selectedMinutes===INFINITE_TIME?Infinity:selectedMinutes*60+30));
   else clockW=Math.min(clockW+30,(selectedMinutes===INFINITE_TIME?Infinity:selectedMinutes*60+30));
