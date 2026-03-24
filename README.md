@@ -21,6 +21,7 @@ rules of hell chess:
 - due to the tense nature of global affairs, any piece on the board is at imminent risk of being neutralized by an unexpected Israeli airstrike.
 - players could hypothetically win on time. that is, if time wasn't negative in Hell.
 - accelerated global warming has unfortunately resulted in a series of Ice Ages. you will not be able to move your pieces until they thaw.
+- other natural disasters include black holes, category 5 earthquakes, sudden disruptions in the board's gravitational field, lightning strikes, and the inescapable fog of war.
 - all you see is not all there is! the board is infinite. pieces from D500 may choose to pay you a visit.
 - love is in the air! if any two kings from opposing sides get within three squares of each other, they embark on a sensual gay romance and the game automatically ends in a draw.
 - both players have a single-use doomsday button. press at your own discretion.
