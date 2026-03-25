@@ -867,7 +867,7 @@ let boardTilt=0;           // degrees of Z-axis left tilt, accumulates each move
 let boardWobble=0;         // tiny per-move X wobble for drama (decays fast)
 let tiltFalling=false;     // true once pieces start sliding
 let tiltApocalypse=false;  // true once vertical and falling
-const TILT_PER_MOVE=2.7;   // 2.7 deg/move → ~33 moves to reach 90°
+const TILT_PER_MOVE=3.6;   // 2.7 deg/move → ~33 moves to reach 90°
 const TILT_SLIDE_START=50; // pieces begin sliding at 50° (downhill side first)
 const TILT_VERTICAL=90;    // full vertical = apocalypse
 let lastGravity=-99,lastMerge=-99,lastEarthquake=-99,lastBlackHole=-99,lastLightning=-99,lastFog=-99,lastGamble=-99;
@@ -1950,9 +1950,9 @@ function nudgeTilt(){
   // Phase 1: 50° — pieces start sliding left (downhill side first)
   if(boardTilt>=TILT_SLIDE_START && !tiltFalling){
     tiltFalling=true;
-    log('CRITICAL TILT. Pieces are sliding off the left edge.','hell');
+    log('Critical tilt. Pieces are sliding off the left edge.','hell');
     setStatus('Pieces sliding! Downhill pieces falling first.');
-    showBanner('PIECES SLIDING','Left side falling into the abyss');
+    showBanner('Pieces sliding!','Left side falling into the abyss');
     flashBoard('rgba(255,30,0,0.5)');
   }
   if(tiltFalling && !tiltApocalypse) startPieceSlideEffect();
@@ -1992,7 +1992,7 @@ function triggerBoardApocalypse(){
   if(gameOver)return;
   stopClock();
   log('The board is vertical. Everything falls left into the abyss.','hell');
-  showBanner('THE ABYSS CLAIMS ALL','Last king on the right wins');
+  showBanner('The abyss claims all.','Last king on the right wins');
   flashBoard('rgba(255,0,0,0.9)');
 
   // Stagger piece falls left→right: col 0 falls first, col 7 last.
@@ -2043,12 +2043,12 @@ function triggerBoardApocalypse(){
 
     let winTitle, winSub;
     if(kingsLeft.length===0){
-      winTitle='NO SURVIVORS';
+      winTitle='No survivors.';
       winSub='Every king tumbled into the void. Hell chess at its finest.';
     } else if(kingsLeft.length===1){
       const wn = kingsLeft[0].p.color==='w'?'White':'Black';
-      winTitle = wn.toUpperCase()+' SURVIVES!';
-      winSub   = `${wn}'s king clung to the right edge. Victory by sheer stubbornness.`;
+      winTitle = wn.toUpperCase()+' survives!';
+      winSub   = `${wn}'s king clung to the right edge. Victory by attrition.`;
       log(wn+' king survived the abyss.','sys');
     } else {
       // Multiple kings — rightmost column wins (farthest from the abyss)
@@ -2058,7 +2058,7 @@ function triggerBoardApocalypse(){
       const wCount = kingsLeft.filter(k=>k.p.color==='w').length;
       const bCount = kingsLeft.filter(k=>k.p.color==='b').length;
       const wn = wCount>bCount ? 'White' : bCount>wCount ? 'Black' : (Math.random()<0.5?'White':'Black');
-      winTitle = wn.toUpperCase()+' CLINGS ON!';
+      winTitle = wn.toUpperCase()+' clings on!';
       winSub   = `${wn} had the most kings on the uphill side. Cowardice rewarded.`;
     }
 
