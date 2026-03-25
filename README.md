@@ -24,6 +24,20 @@ rules of hell chess:
 - other natural disasters include black holes, category 5 earthquakes, sudden disruptions in the board's gravitational field, lightning strikes, and the inescapable fog of war.
 - all you see is not all there is! the board is infinite. pieces from D500 may choose to pay you a visit.
 - love is in the air! if any two kings from opposing sides get within three squares of each other, they embark on a sensual gay romance and the game automatically ends in a draw.
-- both players have a single-use doomsday button. press at your own discretion.
+- pieces are ontologically unstable. rooks may choose to identify as pawns. bishops and knights sometimes hybridize monstrously.
+- both players have a single-use doomsday button. use sparingly.
+- players may rage-quit at their own risk.
 - there is a 30% chance one of your pieces may develop a crippling gambling addiction. this will last anywhere between 30-60 seconds before they realize the devastating impact they're having on their families and check themselves into rehab. that is, unless they've already tasted the sweet allure of poker—then they're hooked for life. in the event that an addict attempts to capture an enemy piece, a poker game will open in the side panel (the chess game, much to your chagrin, will continue to self-immolate in the background). poker is standard: 5-card draw against the house; actions include check, call, raise 10, raise 20, or fold; 100 chips to start, 10 per ante; two betting rounds with an increasingly aggressive house AI. if you win or bully the AI into folding, your addict captures the intended enemy piece AND the highest-value enemy piece anywhere on the board. if you lose or fold, your piece, crippled with despair, immediately kills itself. if you tie, your piece returns to the board, grateful for its chance at moral redemption and resolved to turn over a new leaf.
 - there is a 4% chance your game will turn into checkers. this is irreversible. sorry.
+
+- COMING SOON:
+- the board is suspended horizontally in a 3D plane. it rotates one degree to the left every time a player makes a move. if you do not finish the game before the board is entirely vertical, all pieces slide into the abyss and the last king left clinging to solid ground is declared victorious.
+- obligatory five-dimensional time travel and retrocasual moves (if the creator's intellectual quotient increases dramatically over the next few weeks).
+- horrific board topology: non-Euclidian squares, toroidal/möbius edge connections, etc. essentially, impossible pathfinding.
+- superposition collapse: observing certain pieces forces them to change states. some pieces are also entangled; be mindful.
+- physically accurate entropy: the board tends towards disorder. tiles decay/disappear, pieces rot over time, etc.
+- endlessly changing rules. thought castling was legal? think again!
+- parasitic pieces: preventing your symbiotic knight from forcing your queen to move in L-shapes may require sacrificing its host.
+- board bureaucracy: certain moves require filed paperwork. you spend your next five turns waiting in line at the Hell Chess DMV.
+- windstorms carry lighter pieces off into the void.
+- pieces have limited attention spans. use them infrequently and they wander off. following the labor strike, they have also demanded lunch breaks. you do not know when they will take them and how long they will be. 
