@@ -9,13 +9,13 @@ rules of hell chess:
     - board flips by 180 degrees, and you must now control the other side. you cannot stop this.
     - captured pieces resurrect after a delay. you cannot stop this.
     - occasionally, your own pieces will revolt and turn on each other. beware. there's no telling when the mutiny will end. you cannot stop this.
-    - select pieces become invincible to all attacks. guess whether or not you can stop this. guess.
+    - select pieces become invincible to all attacks. surprisingly, you cannot stop this.
 - one pawn secretly behaves like a knight, bishop, rook, or queen. this is revealed on the first move. it will serve you well to remember which one.
 - pawns reaching rank 8 are promoted to a random piece. this could be a rook. it could be a queen. it could be a king. deal with it.
 - pop-ups… question your certainty.
 - hints will, without fail, select the worst possible move available to you. or, when feeling generous, a move that isn't physically possible. 
 - pieces have the capacity to develop self-awareness. sometimes they panic-move. sometimes they unionize and strike because you've been paying them barely livable wages. you will not know when this has happened until they choose to politely inform you. 
-- when a player checkmates, the board freezes and resets by one move. 
+- it is impossible to checkmate. the board will simply revert. 
 - the leaderboard blatantly lies to you.
 - if you make a move the AI doesn't like, your clock loses a certain number of seconds based on the severity of your transgression. if you do not make your move within an arbitrary amount of time determined by said capricious AI, your turn is auto-forfeited.
 - due to the tense nature of global affairs, any piece on the board is at imminent risk of being neutralized by an unexpected Israeli airstrike.
