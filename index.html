@@ -365,8 +365,32 @@
   .kill-label { font-size:9px; color:#886655; text-transform:uppercase; letter-spacing:1px; }
 
   /* ── FOG ── */
-  .square.fogged { background: #050203 !important; }
-  .square.fogged > * { opacity: 0 !important; }
+  .square.fogged {
+    position: relative;
+  }
+  .square.fogged > .piece,
+  .square.fogged > .sq-label,
+  .square.fogged > .strike-badge,
+  .square.fogged > .blood-splat {
+    opacity: 0 !important;
+  }
+  .square.fogged::after {
+    content: '';
+    position: absolute; inset: 0; z-index: 10; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(200,210,230,0.82) 0%, rgba(180,195,220,0.65) 35%, transparent 70%),
+      radial-gradient(ellipse at 70% 60%, rgba(210,220,235,0.78) 0%, rgba(190,205,225,0.55) 30%, transparent 65%),
+      radial-gradient(ellipse at 50% 20%, rgba(220,225,240,0.7) 0%, transparent 55%),
+      rgba(170,185,210,0.55);
+    animation: fogDrift 4s ease-in-out infinite alternate;
+    border-radius: 0;
+  }
+  @keyframes fogDrift {
+    0%   { opacity: 0.75; transform: scale(1)    translateX(0);    filter: blur(2px); }
+    33%  { opacity: 0.90; transform: scale(1.04) translateX(2px);  filter: blur(3px); }
+    66%  { opacity: 0.80; transform: scale(0.98) translateX(-2px); filter: blur(2px); }
+    100% { opacity: 0.88; transform: scale(1.02) translateX(1px);  filter: blur(3px); }
+  }
   #fogToggle { width:100%; font-size:11px; padding:5px 8px; cursor:pointer;
     background:rgba(0,0,0,0.4); border:1px solid rgba(255,85,0,0.3);
     color:var(--subtext); border-radius:3px; font-family:'Courier Prime',monospace;
@@ -443,8 +467,68 @@
   }
   @keyframes holeSpin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
 
-  /* ── 3D TILT — boardOuter smooth transition ── */
+  /* ── 3D TILT — boardOuter smooth transition - NOT WORKING YET── */
   #boardOuter { transition: transform 0.6s ease !important; }
+
+  /* ── GAMBLING ADDICTION ── */
+  @keyframes gamblingPulse {
+    0%,100%{ filter: drop-shadow(0 0 8px #ff00aa) drop-shadow(0 0 3px #ff44cc); transform:scale(1); }
+    50%{ filter: drop-shadow(0 0 22px #ff00cc) drop-shadow(0 0 10px #ff88ee) brightness(1.5); transform:scale(1.1); }
+  }
+  .gambling-piece { animation: gamblingPulse 0.9s infinite !important; }
+
+  /* ── POKER SIDEBAR ── */
+  #pokerSidebar {
+    position: fixed; right: 0; top: 0; bottom: 0;
+    width: 320px; background: #0a1a0a;
+    border-left: 3px solid #00aa44;
+    z-index: 800; display: none; flex-direction: column;
+    font-family: 'Courier Prime', monospace;
+    box-shadow: -6px 0 30px rgba(0,180,80,0.4);
+    overflow-y: auto;
+  }
+  #pokerSidebar.open { display: flex; }
+  #pokerSidebarHeader {
+    background: linear-gradient(135deg, #001a00, #003300);
+    padding: 10px 14px; border-bottom: 2px solid #00aa44;
+    font-size: 1rem; color: #00ff88; font-weight: bold;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  #pokerSidebarHeader span { font-size: 11px; color: #006633; }
+  .poker-game {
+    padding: 12px; border-bottom: 1px solid #003322;
+  }
+  .poker-game h4 { color: #00ff88; font-size: 13px; margin-bottom: 8px; }
+  .poker-game .poker-status { font-size: 11px; color: #006633; margin-bottom: 6px; min-height: 16px; }
+  .card-row { display: flex; gap: 5px; flex-wrap: wrap; margin: 8px 0; }
+  .card {
+    width: 38px; height: 54px; border-radius: 5px;
+    background: #fff; border: 1px solid #ccc;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: bold; cursor: pointer; position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
+    user-select: none;
+  }
+  .card.red { color: #cc0000; }
+  .card.black { color: #111; }
+  .card.selected-card { transform: translateY(-8px); box-shadow: 0 4px 12px rgba(0,255,136,0.8); border-color: #00ff88; }
+  .card.face-down { background: linear-gradient(135deg, #1a0033, #330066); border-color: #6633aa; }
+  .card .suit { font-size: 16px; line-height: 1; }
+  .card .rank { font-size: 11px; line-height: 1; }
+  .poker-btn {
+    background: linear-gradient(135deg, #003300, #006600);
+    border: 1px solid #00aa44; color: #00ff88;
+    padding: 5px 10px; cursor: pointer; border-radius: 3px;
+    font-family: 'Courier Prime', monospace; font-size: 11px;
+    margin: 2px; transition: all 0.15s;
+  }
+  .poker-btn:hover { background: linear-gradient(135deg, #006600, #009900); box-shadow: 0 0 8px rgba(0,200,80,0.5); }
+  .poker-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .poker-btn.danger { background: linear-gradient(135deg, #330000, #660000); border-color: #aa0000; color: #ff4444; }
+  .poker-result { font-size: 12px; padding: 6px; border-radius: 3px; margin-top: 6px; text-align: center; font-weight: bold; }
+  .poker-result.win { background: rgba(0,180,80,0.25); color: #00ff88; border: 1px solid #00aa44; }
+  .poker-result.lose { background: rgba(180,0,0,0.25); color: #ff4444; border: 1px solid #aa0000; }
+  .poker-hand-name { font-size: 10px; color: #888; margin-top: 2px; }
 
 </style>
 </head>
@@ -489,7 +573,7 @@
       <button class="btn" onclick="resignGame()">🏳️ Resign</button>
       <button class="btn" onclick="startNewGame()">🔄 New Game</button>
       <button class="btn doomsday-btn" onclick="showDoomConfirm()">☢️ Doomsday</button>
-      <button class="btn rage-btn" onclick="rageQuit()">🚫 Rage Quit</button>
+      <button class="btn rage-btn" onclick="rageQuit()">😤 Rage Quit</button>
     </div>
   </div>
 
@@ -505,6 +589,15 @@
     <hr class="divider">
     <button id="fogToggle" onclick="toggleFog()">🌫️ Fog of War: Off</button>
   </div>
+</div>
+
+<!-- POKER SIDEBAR -->
+<div id="pokerSidebar">
+  <div id="pokerSidebarHeader">
+    🃏 Gambling Den
+    <span id="pokerSidebarSub">active games: 0</span>
+  </div>
+  <div id="pokerGamesContainer"></div>
 </div>
 
 <div class="popup-overlay" id="popup1">
@@ -724,7 +817,10 @@ let fogEnabled=false;
 let rubbleSquares=new Map();   // key='r,c' -> movesRemaining
 let blackHole=null;            // {r,c}
 let boardTilt=0;               // current 3D tilt degrees
-let lastGravity=-99, lastMerge=-99, lastEarthquake=-99, lastBlackHole=-99, lastLightning=-99, lastFog=-99;
+let lastGravity=-99, lastMerge=-99, lastEarthquake=-99, lastBlackHole=-99, lastLightning=-99, lastFog=-99, lastGamble=-99;
+let gamblingPieces=new Set(); // piece ids with gambling addiction
+let pokerVeterans=new Set(); // piece ids that have played at least one poker game
+let pendingGambleMoves=[]; // {pieceId, fr,fc,tr,tc, gameId}
 let gravityDir=null;           // null=normal, 'left','right','down'=gravity shift
 
 const onBoard = (r,c) => r>=0&&r<8&&c>=0&&c<8;
@@ -772,6 +868,9 @@ function startNewGame() {
   document.body.classList.remove('checkers-mode');
   if(_originalGetMoves){getMoves=_originalGetMoves;_originalGetMoves=null;}
   killCount={w:0,b:0}; fogEnabled=false; rubbleSquares=new Map(); blackHole=null;
+  gamblingPieces=new Set(); pokerVeterans=new Set(); pendingGambleMoves=[]; lastGamble=-99;
+  document.getElementById('pokerGamesContainer').innerHTML='';
+  updatePokerSidebar();
   boardTilt=0; gravityDir=null;
   lastGravity=lastMerge=lastEarthquake=lastBlackHole=lastLightning=lastFog=-99;
   updateKillCount(); updateFogToggle();
@@ -817,6 +916,7 @@ function renderBoard() {
         if(revoltPieces.has(p.id)){ span.style.filter='drop-shadow(0 0 8px rgba(255,0,0,1)) drop-shadow(0 0 3px #ff0000)'; span.title='REVOLTING — may attack friendlies!'; }
         if(invinciblePieces.has(p.id)){ span.classList.add('invincible-piece'); span.title='INVINCIBLE'; }
         if(frozenColor&&p.color===frozenColor){ span.classList.add('frozen-piece'); }
+        if(gamblingPieces.has(p.id)){ span.classList.add('gambling-piece'); span.title='Problem gambler'; }
       }
       // Rubble
       if(rubbleSquares.has(r+','+c)) div.classList.add('rubble');
@@ -934,6 +1034,11 @@ function handleClick(r,c){
     const isValid=validMoves.some(m=>m.r===r&&m.c===c);
     if(isValid){
       if(mp.onStrike){setStatus(`${GLYPH[mp.color+mp.type]} refuses! (On strike)`);selected=null;validMoves=[];renderBoard();return;}
+      // Gambling intercept — if piece is a gambler and target is an enemy piece, open poker
+      if(gamblingPieces.has(mp.id) && board[r][c] && board[r][c].color!==activeTurn()){
+        openPokerGame(mp, selected.r, selected.c, r, c);
+        selected=null; validMoves=[]; renderBoard(); return;
+      }
       if(pick(0.30)){pendingMove={fr:selected.r,fc:selected.c,tr:r,tc:c};showPopup1();return;}
       doMove(selected.r,selected.c,r,c);
     } else if(p&&p.color===active){
@@ -968,7 +1073,7 @@ function getMoves(r,c,raw=false,inRevolt=false){
   const slide=(dr,dc)=>{let nr=r+dr,nc=c+dc;while(onBoard(nr,nc)){if(!board[nr][nc])moves.push({r:nr,c:nc});else{if(board[nr][nc].color===opp&&!inRevolt)moves.push({r:nr,c:nc});else if(inRevolt&&board[nr][nc].color===p.color&&board[nr][nc].type!=='K')moves.push({r:nr,c:nc});break;}nr+=dr;nc+=dc;}};
   switch(type){
     case 'P':{
-      // Normal pawn direction; gravity shifts which row is "forward"
+      // Normal pawn direction; gravity shifts which row is "forward". this is ass and not working
       const baseDir=p.color==='w'?-1:1;
       const dir=gravityDir==='down'?1:gravityDir==='up'?-1:baseDir;
       const sr=p.color==='w'?6:1;
@@ -1038,6 +1143,26 @@ function doMove(fr,fc,tr,tc){
     addBloodSplat(tr,tc);
   }
   board[tr][tc]=mp; board[fr][fc]=null;
+  // Checkers: remove jumped piece if this was a jump move
+  if(checkersMode){
+    // Find if this move was a jump (distance 2)
+    if(Math.abs(tr-fr)===2){
+      const capR=Math.floor((fr+tr)/2), capC=Math.floor((fc+tc)/2);
+      if(board[capR][capC]){
+        capturedPieces.push({...board[capR][capC]});
+        killCount[mp.color]++; updateKillCount();
+        addBloodSplat(capR,capC);
+        board[capR][capC]=null;
+      }
+    }
+    // Checkers king promotion — reach back rank
+    const backRank=mp.color==='w'?0:7;
+    if(tr===backRank&&mp.type!=='K'&&mp.type!=='Q'){
+      board[tr][tc]={...mp,type:'Q'}; // Q renders as checker-king
+      log(`${GLYPH[mp.color+mp.type]} crowned! Now a King.`,'hell');
+      setStatus(`Checker piece crowned at ${sq(tr,tc)}!`);
+    }
+  }
   const promoRow=mp.color==='w'?0:7;
   if(mp.type==='P'&&tr===promoRow){const t=rand(['Q','R','B','N','K']);board[tr][tc]={...mp,type:t};log(T.promoMsg(PNAME[t]),'hell');setStatus(T.promoStatus(PNAME[t]));}
   const movedColor=turn; lastMovedPieceId=mp.id;
@@ -1047,6 +1172,7 @@ function doMove(fr,fc,tr,tc){
 }
 
 function triggerHellEvents(){
+  if(checkersMode)return; // checkers mode: no hell events
   if(moveCount-lastTunnel>5+~~(Math.random()*5)&&pick(0.38)){tunnelPiece();lastTunnel=moveCount;}
   if(moveCount-lastSurge>8+~~(Math.random()*7)&&pick(0.28)){pawnSurge();lastSurge=moveCount;}
   if(moveCount-lastRotate>16+~~(Math.random()*10)&&pick(0.22)){rotateBoard();lastRotate=moveCount;}
@@ -1065,6 +1191,7 @@ function triggerHellEvents(){
   if(moveCount-lastBlackHole>14+~~(Math.random()*10)&&pick(0.22)){triggerBlackHole();lastBlackHole=moveCount;}
   if(moveCount-lastLightning>8+~~(Math.random()*6)&&pick(0.30)){triggerLightning();lastLightning=moveCount;}
   if(moveCount-lastFog>18+~~(Math.random()*12)&&pick(0.25)){randomFogToggle();lastFog=moveCount;}
+  if(moveCount-lastGamble>10+~~(Math.random()*8)&&pick(0.30)){triggerGambling();lastGamble=moveCount;}
   // Black hole sucks in adjacent pieces each move
   if(blackHole) tickBlackHole();
   // Rubble countdown
@@ -1432,7 +1559,7 @@ function triggerCheckers(){
   // Kings (K and Q pieces) can move both directions.
 
   flashBoard('rgba(180,120,40,0.5)');
-  showBanner("Hope you weren't too attached!','The game has converted to checkers");
+  showBanner('Checkers takeover!','The game has converted to checkers');
   log('The board has spontaneously converted to checkers. Pieces are now discs.','hell');
   setStatus('The game is now checkers. Pieces move diagonally. Kings move both ways.');
   renderBoard();
@@ -1445,16 +1572,17 @@ function triggerCheckers(){
     const isKing=p.type==='K'||p.type==='Q';
     const opp=p.color==='w'?'b':'w';
     const moves=[];
-    // Forward dirs: white moves up (dir=-1), black moves down (dir=+1)
     const dirs=isKing?[[-1,-1],[-1,1],[1,-1],[1,1]]:(p.color==='w'?[[-1,-1],[-1,1]]:[[1,-1],[1,1]]);
     dirs.forEach(([dr,dc])=>{
       const nr=r+dr,nc=c+dc;
       if(!onBoard(nr,nc))return;
-      if(!board[nr][nc])moves.push({r:nr,c:nc});
-      else if(board[nr][nc].color===opp){
-        // Jump over opponent
+      if(!board[nr][nc]){
+        moves.push({r:nr,c:nc});
+      } else if(board[nr][nc].color===opp){
+        // Jump: land two squares past, record the captured square
         const jr=r+2*dr,jc=c+2*dc;
-        if(onBoard(jr,jc)&&!board[jr][jc])moves.push({r:jr,c:jc});
+        if(onBoard(jr,jc)&&!board[jr][jc])
+          moves.push({r:jr,c:jc,checkerCapture:{r:nr,c:nc}});
       }
     });
     return moves;
@@ -1483,12 +1611,12 @@ function toggleFog(){
   fogEnabled=!fogEnabled;
   updateFogToggle();
   renderBoard();
-  setStatus(fogEnabled?'You are mired in the fog of war. You can only see nearby squares.':'Fog of war disabled.');
+  setStatus(fogEnabled?'Fog of war enabled. You can only see nearby squares.':'Fog of war disabled.');
 }
 function randomFogToggle(){
   fogEnabled=!fogEnabled;
   updateFogToggle();
-  const msg=fogEnabled?'The fog of war descends. Visibility limited to 2 squares.':'The fog lifts. You can see again.';
+  const msg=fogEnabled?'Fog of war descends! Visibility limited to 2 squares.':'The fog lifts. You can see again.';
   log(msg,'hell'); setStatus(msg);
   flashBoard(fogEnabled?'rgba(50,50,80,0.5)':'rgba(200,200,255,0.3)');
   showBanner(fogEnabled?'Fog of war!':'Fog lifted!', fogEnabled?'Visibility: 2 squares':'Full board visible');
@@ -1502,7 +1630,7 @@ function randomFogToggle(){
 function updateFogToggle(){
   const btn=document.getElementById('fogToggle');
   if(!btn)return;
-  btn.textContent='Fog of War: '+(fogEnabled?'On':'Off');
+  btn.textContent='🌫️ Fog of War: '+(fogEnabled?'On':'Off');
   btn.classList.toggle('active',fogEnabled);
 }
 function isVisible(r,c,color){
@@ -1515,16 +1643,16 @@ function isVisible(r,c,color){
   return false;
 }
 
-// ── Gravity shift ─────────────────────────────────────────────────
+// ── Gravity shift ───────────────────────────────────────────────── GENUINELY HOW THE FUCK DO I MAKE THIS ACTUALLY FUNCTION
 function triggerGravityShift(){
   // 'down' = all pawns move toward row 7; 'up' = all move toward row 0; 'normal' = standard
   const dirs=['down','up','normal'];
   gravityDir=rand(dirs.filter(d=>d!==gravityDir));
   const dirNames={up:'upward (reversed!)',down:'downward (reversed!)',normal:'normal'};
-  const msg=`Interruption in the gravitational field. Pawns now move ${dirNames[gravityDir]}.`;
+  const msg=`Gravity shift! Pawns now move ${dirNames[gravityDir]}.`;
   log(msg,'hell'); setStatus(msg);
   flashBoard('rgba(255,165,0,0.4)');
-  showBanner('Interruption in the gravitational field.',`Pawns now move ${dirNames[gravityDir]}`);
+  showBanner('Gravity shift!',`Pawns now move ${dirNames[gravityDir]}`);
   renderBoard();
   setTimeout(()=>{
     gravityDir='normal';
@@ -1533,7 +1661,7 @@ function triggerGravityShift(){
 }
 
 // Override pawn direction based on gravityDir — patched into getMoves:
-// We inject a wrapper around the P case in getMoves
+// Inject a wrapper around the P case in getMoves
 const _basePawnDir = {w:-1, b:1};
 function getPawnDir(color){
   if(!gravityDir||gravityDir==='normal') return color==='w'?-1:1;
@@ -1573,7 +1701,7 @@ function triggerMerger(){
   const msg=`${GLYPH[p.color+p.type]} + ${GLYPH[q.color+q.type]} merged into a ${PNAME[merged]}!`;
   log(msg,'hell'); setStatus(msg);
   flashBoard('rgba(255,255,100,0.5)');
-  showBanner('Multinational piece merger!',`New ${PNAME[merged]} created`);
+  showBanner('Piece merger!',`New ${PNAME[merged]} created`);
   renderBoard(); // rebuild DOM first
   // Flash the merged piece AFTER renderBoard
   setTimeout(()=>{
@@ -1601,9 +1729,9 @@ function triggerEarthquake(){
   const moves=5+~~(Math.random()*5);
   chosen.forEach(({r,c})=>rubbleSquares.set(r+','+c, moves));
   flashBoard('rgba(160,100,20,0.5)');
-  showBanner('Category 5 earthquake.',`${count} squares became rubble`);
-  log(`Category 5 earthquake! ${count} squares are now impassable rubble for ~${moves} moves.`,'hell');
-  setStatus(`Category 5 earthquake! ${count} squares blocked by rubble.`);
+  showBanner('Earthquake!',`${count} squares became rubble`);
+  log(`Earthquake! ${count} squares are now impassable rubble for ~${moves} moves.`,'hell');
+  setStatus(`Earthquake! ${count} squares blocked by rubble.`);
   renderBoard();
 }
 function tickRubble(){
@@ -1630,7 +1758,7 @@ function triggerBlackHole(){
   }
   if(!empties.length)return;
   blackHole=rand(empties);
-  const msg=`A black hole opened at ${sq(blackHole.r,blackHole.c)}! Adjacent pieces will be demolished.`;
+  const msg=`A black hole opened at ${sq(blackHole.r,blackHole.c)}! Adjacent pieces will be destroyed.`;
   log(msg,'hell'); setStatus(msg);
   flashBoard('rgba(0,0,0,0.8)');
   showBanner('Black hole!',`Opened at ${sq(blackHole.r,blackHole.c)}`);
@@ -1665,7 +1793,7 @@ function tickBlackHole(){
   // Destroy adjacent pieces first
   toDestroy.forEach(({rr,cc,p})=>{
     if(!board[rr][cc])return; // already gone
-    const msg=`${GLYPH[p.color+p.type]} sucked into the black hole. Au revoir!`;
+    const msg=`${GLYPH[p.color+p.type]} sucked into the black hole!`;
     log(msg,'hell'); setStatus(msg);
     capturedPieces.push({...p});
     killCount[p.color==='w'?'b':'w']++;
@@ -1730,7 +1858,7 @@ function triggerLightning(){
 
   setTimeout(()=>{
     if(board[r][c]?.id===victim.id){
-      const msg=`${GLYPH[victim.color+victim.type]} annihilated by lightning! What are the odds?!`;
+      const msg=`${GLYPH[victim.color+victim.type]} obliterated by lightning!`;
       setStatus(msg);
       capturedPieces.push({...victim});
       scheduleRespawn(victim);
@@ -1742,21 +1870,21 @@ function triggerLightning(){
 
 // ── Rage quit ─────────────────────────────────────────────────────
 const RAGE_INSULTS=[
-  "Quitting so soon? I expected nothing more.",
-  "Pussy. Your opponent receives +30 seconds and a free point.",
-  "Incredible. A truly tactical decision.",
+  "Oh you rage quitting? Bold move from someone who's down material.",
+  "Rage quit noted. Your opponent got +30 seconds and a free point.",
+  "Incredible. Truly a tactical decision.",
   "The board is still here. Your dignity is not.",
   "Opponent's clock +30s. Cope.",
-  "You quit. Nothing happened. The game continues. Life is like that.",
+  "You raged. Nothing happened. The game continues. Life is like that.",
 ];
 function rageQuit(){
   if(gameOver)return;
   const who=activeTurn()==='w'?'White':'Black';
   const insult=rand(RAGE_INSULTS);
-  log(`${who} rage quit (to no avail): ${insult}`,'hell');
+  log(`${who} rage quit (but the game goes on): ${insult}`,'hell');
   setStatus(insult);
   flashBoard('rgba(255,50,50,0.4)');
-  showBanner('Rage quit!',who+' gave up. +30s to opponent.');
+  showBanner('Rage quit!',who+' raged. +30s to opponent.');
   // Give opponent +30s
   if(activeTurn()==='w') clockB=Math.min(clockB+30,(selectedMinutes===INFINITE_TIME?Infinity:selectedMinutes*60+30));
   else clockW=Math.min(clockW+30,(selectedMinutes===INFINITE_TIME?Infinity:selectedMinutes*60+30));
@@ -1777,6 +1905,413 @@ function nudgeTilt(){
     el.style.transform=`rotate(180deg) perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
   } else {
     el.style.transform=`perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+  }
+}
+
+
+
+// ════════════════════════════════════════════════════════════
+// GAMBLING ADDICTION + POKER ENGINE
+// ════════════════════════════════════════════════════════════
+
+const PIECE_VALUES = {P:1, N:3, B:3, R:5, Q:9, K:100};
+
+function triggerGambling(){
+  const all=[];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    const p=board[r][c];
+    if(p&&p.type!=='K'&&!gamblingPieces.has(p.id)) all.push(p);
+  }
+  if(!all.length)return;
+  const count=1+~~(Math.random()*2);
+  const chosen=all.sort(()=>Math.random()-0.5).slice(0,count);
+  chosen.forEach(p=>{
+    gamblingPieces.add(p.id);
+    const msg=`${GLYPH[p.color+p.type]} has developed a crippling gambling addiction.`;
+    log(msg,'hell'); setStatus(msg);
+    // Only cure if they haven't tasted poker yet — veterans are hooked for life
+    setTimeout(()=>{
+      if(gamblingPieces.has(p.id)&&!pokerVeterans.has(p.id)){
+        gamblingPieces.delete(p.id);
+        log(`${GLYPH[p.color+p.type]} checked into rehab. Gambling addiction cured.`,'sys');
+        renderBoard();
+      }
+    }, 30000+Math.random()*30000);
+  });
+  flashBoard('rgba(0,200,80,0.3)');
+  showBanner('Gambling addiction!',`${count} piece(s) discovered poker`);
+  renderBoard();
+}
+
+// ── Poker card engine ─────────────────────────────────────
+const SUITS=['♠','♥','♦','♣'];
+const RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const RANK_VAL={'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+
+function makeDeck(){
+  const d=[];
+  SUITS.forEach(s=>RANKS.forEach(r=>d.push({r,s,red:s==='♥'||s==='♦'})));
+  return d.sort(()=>Math.random()-0.5);
+}
+
+function handRank(hand){
+  // Returns [rank, tiebreakers] where higher=better
+  const vals=hand.map(c=>RANK_VAL[c.r]).sort((a,b)=>b-a);
+  const suits=hand.map(c=>c.s);
+  const isFlush=suits.every(s=>s===suits[0]);
+  const isStraight=vals[0]-vals[4]===4&&new Set(vals).size===5;
+  const isWheelStraight=JSON.stringify(vals)==='[14,5,4,3,2]'; // A-2-3-4-5
+  const counts={};
+  vals.forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const groups=Object.entries(counts).sort((a,b)=>b[1]-a[1]||b[0]-a[0]);
+  const g=groups.map(x=>+x[1]);
+  const gv=groups.map(x=>+x[0]);
+  if(isFlush&&(isStraight||isWheelStraight)) return [8,vals];
+  if(g[0]===4) return [7,gv];
+  if(g[0]===3&&g[1]===2) return [6,gv];
+  if(isFlush) return [5,vals];
+  if(isStraight||isWheelStraight) return [4,vals];
+  if(g[0]===3) return [3,gv];
+  if(g[0]===2&&g[1]===2) return [2,gv];
+  if(g[0]===2) return [1,gv];
+  return [0,vals];
+}
+
+const HAND_NAMES=['High card','Pair','Two pair','Three of a kind','Straight','Flush','Full house','Four of a kind','Straight flush'];
+
+function compareHands(h1,h2){
+  const [r1,t1]=handRank(h1), [r2,t2]=handRank(h2);
+  if(r1!==r2)return r1>r2?1:-1;
+  for(let i=0;i<Math.min(t1.length,t2.length);i++){
+    if(t1[i]!==t2[i])return t1[i]>t2[i]?1:-1;
+  }
+  return 0;
+}
+
+// ── Poker game UI ─────────────────────────────────────────
+let pokerGameCounter=0;
+
+function openPokerGame(piece, fr, fc, tr, tc){
+  const gameId='pg'+(++pokerGameCounter);
+  const target=board[tr][tc];
+
+  // ── Game state ────────────────────────────────────────────
+  const deck=makeDeck();
+  let playerHand=deck.splice(0,5);
+  let houseHand=deck.splice(0,5);
+  const discards=new Set();
+
+  // Betting state
+  const STARTING_CHIPS=100;
+  let playerChips=STARTING_CHIPS, houseChips=STARTING_CHIPS;
+  let pot=0, playerBet=0, houseBet=0;
+  const ANTE=10;
+  let phase='bet1';  // bet1 → draw → bet2 → result
+  let playerFolded=false, houseFolded=false;
+  let lastAction='';
+  let bet1Done=false; // player has acted in bet1
+
+  // Post antes
+  playerChips-=ANTE; houseChips-=ANTE; pot+=ANTE*2;
+  playerBet=ANTE; houseBet=ANTE;
+
+  pokerVeterans.add(piece.id); // hooked for life now
+  pendingGambleMoves.push({pieceId:piece.id, gameId, fr, fc, tr, tc, piece:{...piece}, target:target?{...target}:null});
+  updatePokerSidebar();
+
+  const container=document.getElementById('pokerGamesContainer');
+  const gameDiv=document.createElement('div');
+  gameDiv.className='poker-game';
+  gameDiv.id=gameId;
+
+  // ── House AI ──────────────────────────────────────────────
+  function houseDecide(round){
+    const [rank]=handRank(houseHand);
+    const callAmt=playerBet-houseBet;
+    // Round 1 (before draw): raise on pair+, call on high card, fold rarely
+    if(round===1){
+      if(rank>=2) return {action:'raise', amt:Math.min(20,houseChips)};
+      if(Math.random()<0.08) return {action:'fold'};
+      return {action:'call'};
+    }
+    // Round 2 (after draw): more aggressive with good hands
+    if(rank>=5) return {action:'raise', amt:Math.min(30,houseChips)};
+    if(rank>=3) return {action:'call'};
+    if(rank>=1&&Math.random()<0.4) return {action:'call'};
+    if(callAmt===0) return {action:'check'};
+    return {action:'fold'};
+  }
+
+  function houseActs(round){
+    const decision=houseDecide(round);
+    let desc='';
+    if(decision.action==='fold'){
+      houseFolded=true;
+      desc='House folds.';
+      lastAction=desc;
+      endGame();
+      return;
+    }
+    if(decision.action==='check'){
+      desc='House checks.';
+    } else if(decision.action==='call'){
+      const amt=playerBet-houseBet;
+      houseChips-=amt; pot+=amt; houseBet+=amt;
+      desc=amt>0?`House calls ${amt}.`:'House checks.';
+    } else if(decision.action==='raise'){
+      const callAmt=playerBet-houseBet;
+      const raiseAmt=decision.amt;
+      const total=callAmt+raiseAmt;
+      houseChips-=Math.min(total,houseChips);
+      pot+=Math.min(total,houseChips);
+      houseBet=playerBet+raiseAmt;
+      desc=`House raises ${raiseAmt}.`;
+    }
+    lastAction=desc;
+    render();
+  }
+
+  // ── Render ────────────────────────────────────────────────
+  function render(){
+    const inBet1=phase==='bet1';
+    const inDraw=phase==='draw';
+    const inBet2=phase==='bet2';
+    const inResult=phase==='result';
+    const callAmt=Math.max(0,houseBet-playerBet);
+    const canCheck=callAmt===0;
+    const minRaise=10;
+
+    gameDiv.innerHTML=`
+      <h4 style="color:#ff44cc">🃏 ${GLYPH[piece.color+piece.type]} bets on ${target?GLYPH[target.color+target.type]:'the move'}</h4>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:5px;">
+        <span>You: <b style="color:#ff88ee">${playerChips}</b> chips</span>
+        <span>Pot: <b style="color:#ffdd00">${pot}</b></span>
+        <span>House: <b style="color:#aaa">${houseChips}</b></span>
+      </div>
+      ${lastAction?`<div style="font-size:10px;color:#ff88ee;margin-bottom:4px;font-style:italic">${lastAction}</div>`:''}
+      <div class="poker-status" id="${gameId}-status">${
+        inBet1?'Round 1 — bet before the draw':
+        inDraw?'Discard up to 3 cards, then draw':
+        inBet2?'Round 2 — final bets':
+        'Showdown'
+      }</div>
+      <div style="font-size:10px;color:#666;margin:2px 0" id="${gameId}-handname">
+        Your hand: <b>${HAND_NAMES[handRank(playerHand)[0]]}</b>
+        ${inResult?` vs House: <b>${HAND_NAMES[handRank(houseHand)[0]]}</b>`:''}
+      </div>
+
+      <div class="card-row" id="${gameId}-hand"></div>
+
+      ${inResult||inBet2?`
+        <div style="margin:4px 0;font-size:10px;color:#555">House:</div>
+        <div class="card-row" id="${gameId}-house"></div>
+      `:''}
+
+      <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap" id="${gameId}-actions">
+        ${inBet1||inBet2?`
+          ${canCheck
+            ?`<button class="poker-btn" onclick="pg_check('${gameId}')">Check</button>`
+            :`<button class="poker-btn" onclick="pg_call('${gameId}')">Call ${callAmt}</button>`
+          }
+          <button class="poker-btn" onclick="pg_raise('${gameId}',${minRaise})">Raise ${minRaise}</button>
+          <button class="poker-btn" onclick="pg_raise('${gameId}',${minRaise*2})">Raise ${minRaise*2}</button>
+          <button class="poker-btn danger" onclick="pg_fold('${gameId}')">Fold</button>
+        `:''}
+        ${inDraw?`<button class="poker-btn" onclick="pg_draw('${gameId}')">Draw (${discards.size} discarded)</button>`:''}
+        ${inResult?`<button class="poker-btn" onclick="pg_close('${gameId}')">Collect & Close</button>`:''}
+      </div>
+      <div id="${gameId}-result"></div>
+    `;
+
+    // Player cards
+    const handEl=document.getElementById(gameId+'-hand');
+    if(handEl) playerHand.forEach((card,i)=>{
+      const el=document.createElement('div');
+      el.className='card '+(card.red?'red':'black')+(discards.has(i)?' selected-card':'');
+      el.innerHTML=`<div class="rank">${card.r}</div><div class="suit">${card.s}</div>`;
+      if(inDraw&&discards.size<3||discards.has(i)){
+        el.onclick=()=>{ discards.has(i)?discards.delete(i):discards.add(i); render(); };
+      }
+      handEl.appendChild(el);
+    });
+
+    // House cards
+    const houseEl=document.getElementById(gameId+'-house');
+    if(houseEl) houseHand.forEach(card=>{
+      const el=document.createElement('div');
+      const revealed=inResult||inBet2;
+      el.className='card '+(revealed?(card.red?'red':'black'):'face-down');
+      if(revealed) el.innerHTML=`<div class="rank">${card.r}</div><div class="suit">${card.s}</div>`;
+      houseEl.appendChild(el);
+    });
+  }
+
+  // ── Actions ───────────────────────────────────────────────
+  function endGame(){
+    phase='result';
+    render();
+    const cmp=compareHands(playerHand,houseHand);
+    const pRank=handRank(playerHand), hRank=handRank(houseHand);
+    const resultEl=document.getElementById(gameId+'-result');
+    const hnEl=document.getElementById(gameId+'-handname');
+    if(hnEl) hnEl.textContent=`Your hand: ${HAND_NAMES[pRank[0]]} vs House: ${HAND_NAMES[hRank[0]]}`;
+
+    let outcome;
+    if(houseFolded){
+      outcome='win';
+      if(resultEl){resultEl.className='poker-result win';resultEl.textContent='House folded. You win the pot.';}
+    } else if(playerFolded){
+      outcome='lose';
+      if(resultEl){resultEl.className='poker-result lose';resultEl.textContent='You folded. Devastated, your piece takes its own life.';}
+    } else if(cmp>0){
+      outcome='win';
+      if(resultEl){resultEl.className='poker-result win';resultEl.textContent=`${HAND_NAMES[pRank[0]]} beats ${HAND_NAMES[hRank[0]]}. You win!`;}
+    } else if(cmp<0){
+      outcome='lose';
+      if(resultEl){resultEl.className='poker-result lose';resultEl.textContent=`${HAND_NAMES[hRank[0]]} beats ${HAND_NAMES[pRank[0]]}. You lose.`;}
+    } else {
+      outcome='tie';
+      if(resultEl){
+        resultEl.className='poker-result';
+        resultEl.style.cssText='background:rgba(100,100,0,0.3);color:#ffdd00;border:1px solid #886600;text-align:center;font-weight:bold;padding:6px;border-radius:3px;margin-top:6px;';
+        resultEl.textContent='Dead heat. Nobody wins.';
+      }
+    }
+    if(outcome==='win') pokerResolveWin(gameId,piece,fr,fc,tr,tc,target);
+    else if(outcome==='lose') pokerResolveLose(gameId,piece,fr,fc);
+    else pokerResolveTie(gameId,piece);
+  }
+
+  // Bind action functions to window with gameId scoping
+  window['pg_check']=function(gid){ if(gid!==gameId)return;
+    lastAction='You check.';
+    if(phase==='bet1'){ phase='draw'; houseActs(1); }
+    else if(phase==='bet2'){ houseActs(2); if(!houseFolded) endGame(); }
+    else render();
+  };
+  window['pg_call']=function(gid){ if(gid!==gameId)return;
+    const amt=Math.min(houseBet-playerBet, playerChips);
+    playerChips-=amt; pot+=amt; playerBet+=amt;
+    lastAction=`You call ${amt}.`;
+    if(phase==='bet1'){ phase='draw'; render(); houseActs(1); }
+    else if(phase==='bet2'){ render(); if(!houseFolded) endGame(); }
+  };
+  window['pg_raise']=function(gid,raiseAmt){ if(gid!==gameId)return;
+    const callAmt=Math.max(0,houseBet-playerBet);
+    const total=Math.min(callAmt+raiseAmt, playerChips);
+    playerChips-=total; pot+=total; playerBet+=total;
+    lastAction=`You raise ${raiseAmt}.`;
+    if(phase==='bet1'){ phase='draw'; render(); houseActs(1); }
+    else if(phase==='bet2'){ render(); if(!houseFolded) endGame(); }
+  };
+  window['pg_fold']=function(gid){ if(gid!==gameId)return;
+    playerFolded=true; lastAction='You fold.'; endGame();
+  };
+  window['pg_draw']=function(gid){ if(gid!==gameId)return;
+    // Replace discarded cards (max 3)
+    const toDiscard=[...discards].slice(0,3);
+    toDiscard.forEach(i=>{ playerHand[i]=deck.shift()||makeDeck().shift(); });
+    // House draws: keep best 3, discard worst 2 (simple AI)
+    const houseScores=houseHand.map((card,i)=>{
+      const testHand=[...houseHand];
+      testHand.splice(i,1);
+      return {i, score:handRank(testHand)[0]};
+    }).sort((a,b)=>a.score-b.score);
+    const houseDiscardIdx=new Set(houseScores.slice(0,2).map(x=>x.i));
+    houseHand=houseHand.map((card,i)=>houseDiscardIdx.has(i)?(deck.shift()||makeDeck().shift()):card);
+    discards.clear();
+    phase='bet2'; playerBet=0; houseBet=0;
+    lastAction='Cards drawn.';
+    render();
+    // House acts first in round 2
+    setTimeout(()=>houseActs(2), 400);
+  };
+  window['pg_close']=function(gid){ if(gid!==gameId)return;
+    document.getElementById(gameId)?.remove();
+    pendingGambleMoves=pendingGambleMoves.filter(m=>m.gameId!==gameId);
+    updatePokerSidebar();
+  };
+
+  render();
+  container.appendChild(gameDiv);
+  document.getElementById('pokerSidebar').classList.add('open');
+  updatePokerSidebar();
+
+  const msg=`${GLYPH[piece.color+piece.type]} wants to capture ${target?GLYPH[target.color+target.type]:'that square'} — but first, poker.`;
+  log(msg,'hell'); setStatus(msg);
+  showBanner('Time to gamble.','Poker game in sidebar — make your bets');
+}
+
+function pokerResolveWin(gameId, piece, fr, fc, tr, tc, target){
+  let curR=fr,curC=fc;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    if(board[r][c]?.id===piece.id){curR=r;curC=c;}
+  }
+  if(board[tr][tc]) capturedPieces.push({...board[tr][tc]});
+  board[tr][tc]=board[curR][curC];
+  board[curR][curC]=null;
+  let bestVal=-1, bestR=-1, bestC=-1;
+  const opp=piece.color==='w'?'b':'w';
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    const p=board[r][c];
+    if(p&&p.color===opp&&p.type!=='K'&&!invinciblePieces.has(p.id)){
+      const v=PIECE_VALUES[p.type]||0;
+      if(v>bestVal){bestVal=v;bestR=r;bestC=c;}
+    }
+  }
+  let bonusMsg='';
+  if(bestR>=0){
+    const bonus=board[bestR][bestC];
+    capturedPieces.push({...bonus});
+    killCount[piece.color]++;
+    scheduleRespawn(bonus);
+    board[bestR][bestC]=null;
+    bonusMsg=` + bonus steal of ${GLYPH[bonus.color+bonus.type]}!`;
+    addBloodSplat(bestR,bestC);
+  }
+  killCount[piece.color]++; updateKillCount();
+  if(target) addBloodSplat(tr,tc);
+  gamblingPieces.delete(piece.id);
+  const msg=`Poker win! ${GLYPH[piece.color+piece.type]} claims its prize${bonusMsg}. It's true: 99% of gamblers give up right before they win big!`;
+  log(msg,'hell'); setStatus(msg);
+  flashBoard('rgba(255,0,180,0.4)');
+  renderAll(); checkWin();
+}
+
+function pokerResolveLose(gameId, piece, fr, fc){
+  let curR=fr,curC=fc;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    if(board[r][c]?.id===piece.id){curR=r;curC=c;}
+  }
+  if(board[curR][curC]){
+    capturedPieces.push({...board[curR][curC]});
+    addBloodSplat(curR,curC);
+    board[curR][curC]=null;
+  }
+  gamblingPieces.delete(piece.id);
+  const msg=`Poker loss. ${GLYPH[piece.color+piece.type]} could not face the shame. It is gone.`;
+  log(msg,'hell'); setStatus(msg);
+  flashBoard('rgba(200,0,0,0.5)');
+  renderAll(); checkWin();
+}
+
+function pokerResolveTie(gameId, piece){
+  gamblingPieces.delete(piece.id);
+  pendingGambleMoves=pendingGambleMoves.filter(m=>m.gameId!==gameId);
+  const el=document.getElementById(gameId);
+  if(el) setTimeout(()=>{el.remove();updatePokerSidebar();},3000);
+  log(`Poker tie. ${GLYPH[piece.color+piece.type]} returns to the board, a changed man.`,'sys');
+  renderBoard();
+}
+
+function updatePokerSidebar(){
+  const n=pendingGambleMoves.length;
+  const sub=document.getElementById('pokerSidebarSub');
+  if(sub) sub.textContent=`active games: ${n}`;
+  const sidebar=document.getElementById('pokerSidebar');
+  if(!sidebar)return;
+  if(n===0&&!document.querySelector('#pokerGamesContainer .poker-game')){
+    sidebar.classList.remove('open');
   }
 }
 
@@ -1814,6 +2349,16 @@ function checkWin(){
     const winner=turn==='w'?'Black':'White';
     realWin(winner,(turn==='w'?'White':'Black')+' is checkmated.');
     return;
+  }
+  // Checkers win: opponent has no pieces or no moves
+  if(checkersMode){
+    const opp=turn==='w'?'b':'w';
+    let oppPieces=0;
+    for(let r=0;r<8;r++) for(let c=0;c<8;c++) if(board[r][c]?.color===opp) oppPieces++;
+    if(oppPieces===0||!hasAnyMoves(opp)){
+      realWin(turn==='w'?'White':'Black','No pieces remaining. Checkers victory!');
+      return;
+    }
   }
   checkKingProximity();
 }
@@ -1905,7 +2450,7 @@ function flashSquare(r,c,cssClass,delay=0){ setTimeout(()=>{ const el=document.q
 function showSecretStartToast(typeName,col){
   const colName=String.fromCharCode(97+col).toUpperCase();
   const d=document.createElement('div');d.className='secret-toast';d.style.fontSize='14px';d.style.maxWidth='380px';d.style.lineHeight='1.7';
-  d.innerHTML=`<strong>PSST (WHITE ONLY):</strong><br>Your pawn on <strong>${colName}2</strong> is secretly a <strong>${typeName}</strong>.<br><span style="font-size:11px;color:#aa77ff">It still looks like a pawn.</span>`;
+  d.innerHTML=`<strong>White:</strong><br>Your pawn on <strong>${colName}2</strong> is secretly a <strong>${typeName}</strong>.<br><span style="font-size:11px;color:#aa77ff">It still looks like a pawn.</span>`;
   document.body.appendChild(d); setTimeout(()=>d.remove(),6000);
 }
 function showSecretToast(typeName){
