@@ -1,5 +1,5 @@
 # hell_chess
-self-explanatory.
+chess but worse
 
 rules of hell chess:
 - your minor/major pieces are randomized. you play what you get. 4 queens? congrats! no queens? good luck.
